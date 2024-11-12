@@ -1,0 +1,55 @@
+<div class="container mx-auto p-8 max-w-4xl">
+  <h1 class="text-3xl font-extrabold text-center text-white mb-6">Profile</h1>
+
+  <div *ngIf="errorMessage" class="text-red-600 mb-6 text-center">
+    {{ errorMessage }}
+  </div>
+
+  <ng-container *ngIf="user && stats">
+    <div class="grid gap-6 md:grid-cols-2">
+      <div
+        class="bg-neutral-800 p-6 rounded-lg shadow-lg border border-neutral-600"
+      >
+        <h2 class="text-xl font-semibold text-neutral-100 mb-4">
+          User Information
+        </h2>
+        <div class="space-y-3">
+          <p>
+            <span class="font-medium text-neutral-500">Username:</span>
+            <span class="text-neutral-100">{{ user.username }}</span>
+          </p>
+          <p>
+            <span class="font-medium text-neutral-500">Email:</span>
+            <span class="text-neutral-100">{{ user.email }}</span>
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="bg-neutral-800 p-6 rounded-lg shadow-lg border border-neutral-600"
+      >
+        <h2 class="text-xl font-semibold text-neutral-100 mb-4">Statistics</h2>
+        <div class="space-y-3">
+          <p>
+            <span class="font-medium text-neutral-500"
+              >Total Quizzes Solved:</span
+            >
+            <span class="text-neutral-100">{{ stats.totalQuizzesSolved }}</span>
+          </p>
+          <p>
+            <span class="font-medium text-neutral-500">Accuracy:</span>
+            <span class="text-neutral-100"
+              >{{ stats.accuracy | number : "1.0-2" }}%</span
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!errorMessage && (!user || !stats)">
+    <div class="text-center text-neutral-500 mt-8">
+      <p class="text-lg">Loading profile...</p>
+    </div>
+  </ng-container>
+</div>

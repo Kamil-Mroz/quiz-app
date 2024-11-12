@@ -1,0 +1,71 @@
+<div class="container mx-auto p-6 bg-neutral-800 shadow-lg rounded-lg">
+  <button
+    (click)="goBack()"
+    class="mb-4 text-blue-500 hover:text-blue-700 font-semibold underline"
+  >
+    ← Go Back
+  </button>
+  <div *ngIf="score !== undefined && accuracy !== undefined" class="mt-6 p-4">
+    <h3 class="text-xl font-semibold text-white mb-2">Quiz Result</h3>
+    <p class="text-neutral-300">Score: {{ score }}</p>
+    <p class="text-neutral-300">Accuracy: {{ accuracy }}%</p>
+    <a routerLink="/" class="text-blue-400 hover:underline"> View Quizzes </a>
+  </div>
+
+  <div *ngIf="quiz && score === undefined && accuracy === undefined">
+    <h2 class="text-2xl font-semibold text-blue-500 mb-4">{{ quiz.title }}</h2>
+    <p class="text-neutral-300 mb-6">{{ quiz.description }}</p>
+
+    <div class="text-right text-red-500 font-semibold mb-4">
+      Time remaining: {{ formatTime(timeRemaining) }}
+    </div>
+
+    <form (ngSubmit)="submitQuiz()" class="space-y-6" method="">
+      <div *ngFor="let question of quiz.questions; let i = index" class="mb-6">
+        <h3 class="text-lg font-semibold text-white mb-2">
+          Question {{ i + 1 }}
+        </h3>
+        <p class="text-neutral-400 mb-4">{{ question.text }}</p>
+
+        <div
+          *ngIf="question.choices && question.choices.length > 0"
+          class="space-y-2"
+        >
+          <div
+            *ngFor="let choice of question.choices"
+            class="flex items-center"
+          >
+            <label class="flex items-center space-x-3 text-neutral-300">
+              <input
+                type="radio"
+                name="choice{{ i }}"
+                [(ngModel)]="answers[i]"
+                [value]="choice.choiceText"
+                class="text-blue-500"
+              />
+              <span>
+                {{ choice.choiceText | dateFormat }}
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="!canSubmit()"
+        class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+      >
+        Submit Quiz
+      </button>
+    </form>
+  </div>
+</div>
+
+<div
+  *ngIf="isLoading && !errorMessage"
+  class="loading text-center py-6 text-xl text-blue-500"
+>
+  Loading...
+</div>
+<div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>

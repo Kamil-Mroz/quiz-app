@@ -1,0 +1,38 @@
+<div class="container mx-auto">
+  <h1 class="text-2xl font-bold mb-4">Available Quizzes</h1>
+
+  <div class="filter-container">
+    <input
+      type="text"
+      [(ngModel)]="searchQuery"
+      (input)="onSearchChange()"
+      placeholder="Search quizzes"
+      class="search-bar input"
+    />
+
+    <select
+      *ngIf="categories.length"
+      [(ngModel)]="selectedCategory"
+      (change)="onCategoryChange()"
+      class="category-select input"
+    >
+      <option value="">All categories</option>
+      <option *ngFor="let category of categories" [value]="category">
+        {{ category }}
+      </option>
+    </select>
+  </div>
+
+  <app-quiz-list [quizzes]="quizzes"></app-quiz-list>
+
+  <div
+    *ngIf="quizzes.length === 0 && !isLoading && !errorMessage"
+    class="text-center text-neutral-500"
+  >
+    No quiz available.
+  </div>
+
+  <p *ngIf="isLoading" class="loading">Loading...</p>
+
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+</div>

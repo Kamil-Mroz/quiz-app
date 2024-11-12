@@ -1,0 +1,36 @@
+<header class="text-neutral-400 body-font">
+  <div
+    class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center"
+  >
+    <a routerLink="" class="text-white">Quizzes</a>
+    <nav
+      class="md:mr-auto md:ml-4 md:py-1 md:pl-4 md:border-l md:border-neutral-500 flex flex-wrap items-center text-base justify-center"
+    >
+      <a
+        routerLink=""
+        class="nav-link"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        >Home</a
+      >
+
+      <ng-container *ngIf="this.authService.isLoggedIn(); else guest">
+        <a routerLink="/quizzes/own" class="nav-link" routerLinkActive="active"
+          >My quizzes</a
+        >
+        <a routerLink="/profile" class="nav-link" routerLinkActive="active"
+          >Profile</a
+        >
+        <button (click)="logout()" class="nav-link inline-block">Logout</button>
+      </ng-container>
+      <ng-template #guest>
+        <a routerLink="/login" class="nav-link" routerLinkActive="active"
+          >Login</a
+        >
+        <a routerLink="/register" class="nav-link" routerLinkActive="active"
+          >Register</a
+        >
+      </ng-template>
+    </nav>
+  </div>
+</header>

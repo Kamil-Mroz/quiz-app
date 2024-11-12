@@ -1,0 +1,79 @@
+<div class="mx-auto mt-4 card">
+  <h2 class="text-2xl font-semibold mb-2">Register</h2>
+
+  <form [formGroup]="form" (ngSubmit)="register()" class="space-y-4">
+    <div>
+      <label for="username" class="block text-sm font-medium text-neutral-300"
+        >Username</label
+      >
+      <input
+        id="username"
+        formControlName="username"
+        class="input"
+        type="text"
+      />
+      <div
+        *ngIf="form.controls.username.touched && form.controls.username.invalid"
+        class="error"
+      >
+        <small *ngIf="form.controls.username.errors?.['required']"
+          >Username is required</small
+        >
+        <small *ngIf="form.controls.username.errors?.['minlength']"
+          >Username must be at least 3 characters long</small
+        >
+      </div>
+    </div>
+
+    <div>
+      <label for="email" class="block text-sm font-medium text-neutral-300"
+        >Email</label
+      >
+      <input id="email" formControlName="email" class="input" type="email" />
+      <div
+        *ngIf="form.controls.email.touched && form.controls.email.invalid"
+        class="error"
+      >
+        <small *ngIf="form.controls.email.errors?.['required']"
+          >Email is required</small
+        >
+        <small *ngIf="form.controls.email.errors?.['email']"
+          >Please enter a valid email address</small
+        >
+      </div>
+    </div>
+
+    <div>
+      <label for="password" class="block text-sm font-medium text-neutral-300"
+        >Password</label
+      >
+      <input
+        id="password"
+        formControlName="password"
+        class="input"
+        type="password"
+      />
+      <div
+        *ngIf="form.controls.password.touched && form.controls.password.invalid"
+        class="error"
+      >
+        <small *ngIf="form.controls.password.errors?.['required']"
+          >Password is required</small
+        >
+        <small *ngIf="form.controls.password.errors?.['minlength']" class="mr-2"
+          >Password must be at least 6 characters long</small
+        >
+        <small *ngIf="form.controls.password.errors?.['pattern']">
+          Password must be at least 1 special character
+          (!,&#64;,#,$,%,^,&)</small
+        >
+      </div>
+    </div>
+
+    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
+      Register
+    </button>
+  </form>
+</div>

@@ -1,0 +1,290 @@
+<div *ngIf="isLoading" class="loading text-center py-6 text-xl">Loading...</div>
+<div
+  *ngIf="!isLoading"
+  class="max-w-4xl mx-auto p-6 bg-neutral-900 shadow-lg rounded-lg"
+>
+  <h2 class="text-2xl font-semibold text-blue-500 mb-6">
+    {{ isEditing ? "Edit" : "Create" }} Quiz
+  </h2>
+
+  <form [formGroup]="quizForm" (ngSubmit)="onSubmit()" class="space-y-6">
+    <!-- Title Input -->
+    <div>
+      <label for="title" class="block text-lg font-medium text-neutral-300"
+        >Title</label
+      >
+      <input
+        id="title"
+        formControlName="title"
+        class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="Enter the quiz title"
+      />
+
+      <div
+        *ngIf="quizForm.get('title')?.errors && quizForm.get('title')?.touched"
+      >
+        <small
+          class="error"
+          *ngIf="quizForm.get('title')?.errors?.['required']"
+        >
+          Title is required.
+        </small>
+      </div>
+    </div>
+
+    <!-- Description Input -->
+    <div>
+      <label
+        for="description"
+        class="block text-lg font-medium text-neutral-300"
+        >Description</label
+      >
+      <textarea
+        id="description"
+        formControlName="description"
+        rows="4"
+        class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        placeholder="Describe the quiz"
+      ></textarea>
+
+      <div
+        *ngIf="
+          quizForm.get('description')?.errors &&
+          quizForm.get('description')?.touched
+        "
+      >
+        <small
+          class="error"
+          *ngIf="quizForm.get('description')?.errors?.['required']"
+        >
+          Description is required.
+        </small>
+      </div>
+    </div>
+
+    <!-- Category Input -->
+    <div>
+      <label for="category" class="block text-lg font-medium text-neutral-300"
+        >Category</label
+      >
+      <input
+        id="category"
+        formControlName="category"
+        class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="Enter the category"
+      />
+      <div
+        *ngIf="
+          quizForm.get('category')?.errors && quizForm.get('category')?.touched
+        "
+      >
+        <small
+          class="error"
+          *ngIf="quizForm.get('category')?.errors?.['required']"
+        >
+          Category is required.
+        </small>
+      </div>
+    </div>
+
+    <div>
+      <label
+        for="timeToSolve"
+        class="block text-lg font-medium text-neutral-300"
+        >Time to solve quiz</label
+      >
+      <input
+        id="timeToSolve"
+        formControlName="timeToSolve"
+        class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        type="number"
+        min="1"
+        step="0.1"
+      />
+      <div
+        *ngIf="
+          quizForm.get('timeToSolve')?.errors &&
+          quizForm.get('timeToSolve')?.touched
+        "
+      >
+        <small
+          class="error"
+          *ngIf="quizForm.get('timeToSolve')?.errors?.['required']"
+        >
+          Time to solve is required.
+        </small>
+
+        <small
+          class="error"
+          *ngIf="quizForm.get('timeToSolve')?.errors?.['min']"
+        >
+          Time to solve must be at least 1 minute.
+        </small>
+      </div>
+    </div>
+
+    <div *ngIf="quizForm.hasError('minQuestions')">
+      <p class="error">A quiz must have at least one question.</p>
+    </div>
+
+    <!-- Questions Section -->
+    <div formArrayName="questions" class="space-y-6">
+      <div
+        *ngFor="let question of questions().controls; let i = index"
+        [formGroupName]="i"
+        class="p-4 bg-neutral-800 rounded-lg shadow-sm space-y-4"
+      >
+        <h3 class="text-xl font-semibold text-white">Question {{ i + 1 }}</h3>
+
+        <!-- Question Text -->
+        <div>
+          <label for="text" class="block text-lg font-medium text-neutral-300"
+            >Question Text</label
+          >
+          <input
+            formControlName="text"
+            class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter the question"
+          />
+        </div>
+
+        <!-- Correct Answer -->
+        <div>
+          <label
+            for="correctAnswer"
+            class="block text-lg font-medium text-neutral-300"
+            >Correct Answer</label
+          >
+          <input
+            formControlName="correctAnswer"
+            class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter the correct answer"
+          />
+        </div>
+
+        <!-- Question Type -->
+        <div>
+          <label for="type" class="block text-lg font-medium text-neutral-300"
+            >Question Type</label
+          >
+          <select
+            formControlName="type"
+            class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            (ngModelChange)="onTypeChange(i)"
+          >
+            <option value="text">Text</option>
+            <option value="numeric">Numeric</option>
+            <option value="boolean">Boolean</option>
+            <option value="date">Date</option>
+          </select>
+        </div>
+
+        <!-- Choices Section -->
+        <div formArrayName="choices" class="space-y-4">
+          <div
+            *ngFor="let choice of getChoices(i).controls; let j = index"
+            [formGroupName]="j"
+          >
+            <div class="flex items-center space-x-4">
+              <label
+                class="block text-lg font-medium text-neutral-300 min-w-fit"
+                >Choice {{ j + 1 }}</label
+              >
+              <input
+                formControlName="choiceText"
+                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter choice"
+              />
+              <button
+                *ngIf="getChoices(i).controls.length > 2"
+                type="button"
+                (click)="removeChoice(i, j)"
+                class="text-red-500 hover:text-red-700"
+              >
+                Remove
+              </button>
+            </div>
+
+            <div
+              *ngIf="choice.get('choiceText')?.hasError('invalidNumber')"
+              class="error"
+            >
+              {{ choice.get("choiceText")?.getError("invalidNumber")?.message }}
+            </div>
+
+            <div
+              *ngIf="choice.get('choiceText')?.hasError('invalidDate')"
+              class="error"
+            >
+              {{ choice.get("choiceText")?.getError("invalidDate")?.message }}
+            </div>
+
+            <div
+              *ngIf="choice.get('choiceText')?.hasError('invalidDateFormat')"
+              class="error"
+            >
+              {{
+                choice.get("choiceText")?.getError("invalidDateFormat")?.message
+              }}
+            </div>
+
+            <div
+              *ngIf="choice.get('choiceText')?.hasError('invalidBoolean')"
+              class="error"
+            >
+              {{
+                choice.get("choiceText")?.getError("invalidBoolean")?.message
+              }}
+            </div>
+          </div>
+
+          <div
+            *ngIf="questions().at(i).hasError('correctAnswerNotInChoices')"
+            class="error"
+          >
+            Correct answer must be one of the choices
+          </div>
+          <button
+            *ngIf="
+              getChoices(i).controls.length <
+              (questions().at(i).get('type')?.value === 'boolean' ? 2 : 4)
+            "
+            type="button"
+            (click)="addChoice(i)"
+            class="mt-2 w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+          >
+            Add Choice
+          </button>
+        </div>
+
+        <!-- Remove Question Button -->
+        <button
+          *ngIf="questions().controls.length > 1"
+          type="button"
+          (click)="removeQuestion(i)"
+          class="w-full bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+        >
+          Remove Question
+        </button>
+      </div>
+    </div>
+
+    <!-- Add Question Button -->
+    <button
+      type="button"
+      (click)="addQuestion()"
+      class="w-full bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+    >
+      Add Question
+    </button>
+
+    <!-- Submit Button -->
+    <button
+      type="submit"
+      [disabled]="quizForm.invalid"
+      class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+    >
+      Save Quiz
+    </button>
+  </form>
+</div>

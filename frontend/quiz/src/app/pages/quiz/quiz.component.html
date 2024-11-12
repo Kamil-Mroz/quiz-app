@@ -1,0 +1,48 @@
+<p *ngIf="isLoading" class="loading">Loading quiz data...</p>
+
+<div
+  *ngIf="!isLoading && quiz"
+  class="max-w-4xl mx-auto p-6 bg-neutral-800 rounded-lg shadow-l"
+>
+  <button
+    (click)="goBack()"
+    class="mb-4 text-blue-500 hover:text-blue-700 font-semibold underline"
+  >
+    ← Go Back
+  </button>
+  <h1 class="text-3xl font-extrabold text-neutral-100 mb-4">
+    {{ quiz.title }}
+  </h1>
+  <div class="space-y-4">
+    <p class="text-lg font-medium text-neutral-200">
+      <strong>Description:</strong> {{ quiz.description }}
+    </p>
+    <p class="text-lg text-neutral-300">
+      <strong>Category:</strong> {{ quiz.category }}
+    </p>
+    <p class="text-lg text-neutral-300">
+      <strong>Time to solve:</strong> {{ quiz.timeToSolve }} minutes.
+    </p>
+    <p class="text-lg text-neutral-300">
+      <strong>Created By:</strong> {{ quiz.createdBy }}
+    </p>
+    <p class="text-lg text-neutral-300">
+      <strong>Created At:</strong> {{ quiz.createdAt | date : "dd-MM-yyyy" }}
+    </p>
+    <p class="text-lg text-neutral-300">
+      <strong>Updated At:</strong> {{ quiz.updatedAt | date : "dd-MM-yyyy" }}
+    </p>
+    <p class="text-lg text-neutral-300">
+      <strong>Number of Questions:</strong> {{ quiz.questions.length }}
+    </p>
+
+    <a
+      *ngIf="this.isLoggedIn()"
+      routerLink="/quizzes/{{quiz.id}}/solve"
+      type="button"
+      class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 block text-center"
+    >
+      Start quiz
+    </a>
+  </div>
+</div>

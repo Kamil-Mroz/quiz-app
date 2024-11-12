@@ -1,0 +1,35 @@
+<div class="mx-auto mt-4 card">
+  <h2 class="text-2xl font-semibold mb-2">Login</h2>
+
+  <form [formGroup]="form" (ngSubmit)="login()" class="space-y-4">
+    <div>
+      <label for="username" class="block text-sm font-medium text-neutral-300"
+        >Username</label
+      >
+      <input
+        id="username"
+        formControlName="username"
+        class="input"
+        type="text"
+      />
+    </div>
+
+    <div>
+      <label for="password" class="block text-sm font-medium text-neutral-300"
+        >Password</label
+      >
+      <input
+        id="password"
+        formControlName="password"
+        class="input"
+        type="password"
+      />
+    </div>
+
+    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
+      Login
+    </button>
+  </form>
+</div>
