@@ -79,13 +79,7 @@ export function choiceTypeValidator(questionType: string): ValidatorFn {
     }
 
     if (questionType === 'boolean') {
-      if (
-        choiceText.toLowerCase() === 'true' ||
-        choiceText.toLowerCase() === 'false'
-      ) {
-        return null;
-      }
-      return { invalidBoolean: { message: 'Choice must be true or false.' } };
+      return null
     }
 
     return null;

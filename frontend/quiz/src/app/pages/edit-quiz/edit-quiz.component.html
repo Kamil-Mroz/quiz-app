@@ -1,8 +1,19 @@
+
+
 <div *ngIf="isLoading" class="loading text-center py-6 text-xl">Loading...</div>
+
+
 <div
   *ngIf="!isLoading"
   class="max-w-4xl mx-auto p-6 bg-neutral-900 shadow-lg rounded-lg"
 >
+
+  <button
+    (click)="goBack()"
+    class="mb-4 text-blue-500 hover:text-blue-700 font-semibold underline"
+  >
+    ← Go Back
+  </button>
   <h2 class="text-2xl font-semibold text-blue-500 mb-6">
     {{ isEditing ? "Edit" : "Create" }} Quiz
   </h2>
@@ -136,6 +147,23 @@
       >
         <h3 class="text-xl font-semibold text-white">Question {{ i + 1 }}</h3>
 
+        <!-- Question Type -->
+        <div>
+          <label for="type" class="block text-lg font-medium text-neutral-300"
+          >Question Type</label
+          >
+          <select
+            formControlName="type"
+            class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            (ngModelChange)="onTypeChange(i)"
+          >
+            <option value="text">Text</option>
+            <option value="numeric">Numeric</option>
+            <option value="boolean">Boolean</option>
+            <option value="date">Date</option>
+          </select>
+        </div>
+
         <!-- Question Text -->
         <div>
           <label for="text" class="block text-lg font-medium text-neutral-300"
@@ -147,6 +175,8 @@
             placeholder="Enter the question"
           />
         </div>
+
+
 
         <!-- Correct Answer -->
         <div>
@@ -162,99 +192,91 @@
           />
         </div>
 
-        <!-- Question Type -->
-        <div>
-          <label for="type" class="block text-lg font-medium text-neutral-300"
-            >Question Type</label
-          >
-          <select
-            formControlName="type"
-            class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            (ngModelChange)="onTypeChange(i)"
-          >
-            <option value="text">Text</option>
-            <option value="numeric">Numeric</option>
-            <option value="boolean">Boolean</option>
-            <option value="date">Date</option>
-          </select>
-        </div>
+
 
         <!-- Choices Section -->
-        <div formArrayName="choices" class="space-y-4">
-          <div
-            *ngFor="let choice of getChoices(i).controls; let j = index"
-            [formGroupName]="j"
-          >
-            <div class="flex items-center space-x-4">
-              <label
-                class="block text-lg font-medium text-neutral-300 min-w-fit"
-                >Choice {{ j + 1 }}</label
+        <div *ngIf="questions().at(i).get('type')?.value !== 'boolean'">
+
+          <div formArrayName="choices" class="space-y-4">
+            <div
+              *ngFor="let choice of getChoices(i).controls; let j = index"
+              [formGroupName]="j"
+            >
+              <div class="flex items-center space-x-4">
+                <label
+                  class="block text-lg font-medium text-neutral-300 min-w-fit"
+                  >Choice {{ j + 1 }}</label
+                >
+                <input
+                  formControlName="choiceText"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter choice"
+                />
+                <button
+                  *ngIf="getChoices(i).controls.length > 2"
+                  type="button"
+                  (click)="removeChoice(i, j)"
+                  class="text-red-500 hover:text-red-700"
+                >
+                  Remove
+                </button>
+              </div>
+
+              <div
+                *ngIf="choice.get('choiceText')?.hasError('invalidNumber')"
+                class="error"
               >
-              <input
-                formControlName="choiceText"
-                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter choice"
-              />
-              <button
-                *ngIf="getChoices(i).controls.length > 2"
-                type="button"
-                (click)="removeChoice(i, j)"
-                class="text-red-500 hover:text-red-700"
+                {{ choice.get("choiceText")?.getError("invalidNumber")?.message }}
+              </div>
+
+              <div
+                *ngIf="choice.get('choiceText')?.hasError('invalidDate')"
+                class="error"
               >
-                Remove
-              </button>
+                {{ choice.get("choiceText")?.getError("invalidDate")?.message }}
+              </div>
+
+              <div
+                *ngIf="choice.get('choiceText')?.hasError('invalidDateFormat')"
+                class="error"
+              >
+                {{
+                  choice.get("choiceText")?.getError("invalidDateFormat")?.message
+                }}
+              </div>
+
+              <div
+                *ngIf="choice.get('choiceText')?.hasError('invalidBoolean')"
+                class="error"
+              >
+                {{
+                  choice.get("choiceText")?.getError("invalidBoolean")?.message
+                }}
+              </div>
             </div>
 
-            <div
-              *ngIf="choice.get('choiceText')?.hasError('invalidNumber')"
-              class="error"
-            >
-              {{ choice.get("choiceText")?.getError("invalidNumber")?.message }}
-            </div>
 
-            <div
-              *ngIf="choice.get('choiceText')?.hasError('invalidDate')"
-              class="error"
+            <button
+              *ngIf="
+                getChoices(i).controls.length <
+                (questions().at(i).get('type')?.value === 'boolean' ? 2 : 4)
+              "
+              type="button"
+              (click)="addChoice(i)"
+              class="mt-2 w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
             >
-              {{ choice.get("choiceText")?.getError("invalidDate")?.message }}
-            </div>
-
-            <div
-              *ngIf="choice.get('choiceText')?.hasError('invalidDateFormat')"
-              class="error"
-            >
-              {{
-                choice.get("choiceText")?.getError("invalidDateFormat")?.message
-              }}
-            </div>
-
-            <div
-              *ngIf="choice.get('choiceText')?.hasError('invalidBoolean')"
-              class="error"
-            >
-              {{
-                choice.get("choiceText")?.getError("invalidBoolean")?.message
-              }}
-            </div>
+              Add Choice
+            </button>
           </div>
+        </div>
 
-          <div
-            *ngIf="questions().at(i).hasError('correctAnswerNotInChoices')"
-            class="error"
-          >
-            Correct answer must be one of the choices
-          </div>
-          <button
-            *ngIf="
-              getChoices(i).controls.length <
-              (questions().at(i).get('type')?.value === 'boolean' ? 2 : 4)
-            "
-            type="button"
-            (click)="addChoice(i)"
-            class="mt-2 w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-          >
-            Add Choice
-          </button>
+        <div
+          *ngIf="questions().at(i).hasError('correctAnswerNotInChoices')"
+          class="error"
+        >
+         {{
+          questions().at(i).getError("correctAnswerNotInChoices")
+          }}
         </div>
 
         <!-- Remove Question Button -->

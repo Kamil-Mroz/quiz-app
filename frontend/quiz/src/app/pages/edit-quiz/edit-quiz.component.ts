@@ -11,7 +11,7 @@ import {
 import { Question, Quiz } from '../../../model';
 import { QuizService } from '../../services/quiz.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgFor, NgIf } from '@angular/common';
+import {Location, NgFor, NgIf} from '@angular/common';
 import { correctAnswerInChoicesValidator } from '../../validators/correct-answer-in-choices.validator';
 import { choiceTypeValidator } from '../../validators/choice-type.validator';
 
@@ -34,7 +34,8 @@ export class EditQuizComponent implements OnInit {
     private fb: FormBuilder,
     private quizService: QuizService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private location:Location,
   ) {}
 
   ngOnInit(): void {
@@ -46,6 +47,10 @@ export class EditQuizComponent implements OnInit {
       this.isEditing = false;
       this.initializeForm();
     }
+  }
+
+  goBack(){
+    this.location.back();
   }
 
   initializeForm(quiz?: Quiz) {
@@ -210,36 +215,30 @@ export class EditQuizComponent implements OnInit {
         }
 
         question.choices?.forEach((choice: any) => {
-          const choiceDate = this.convertDateStringToDate(choice.choiceText);
+          const choiceDate:Date|null = this.convertDateStringToDate(choice.choiceText);
           if (choiceDate) {
             choice.choiceText = choiceDate;
           }
         });
       } else if (question.type === 'numeric') {
-        const numericCorrectAnswer = Number(question.correctAnswer);
 
-        question.correctAnswer = numericCorrectAnswer;
+        question.correctAnswer = Number(question.correctAnswer);
 
         question.choices?.forEach((choice: any) => {
-          const numberChoice = Number(choice.choiceText);
-          choice.choiceText = numberChoice;
+
+          choice.choiceText = Number(choice.choiceText);
         });
       } else if (question.type === 'boolean') {
         if (typeof question.correctAnswer === 'string') {
-          const booleanCorrectAnswer =
-            question.correctAnswer.toLocaleLowerCase() === 'true'
-              ? true
-              : false;
-          question.correctAnswer = booleanCorrectAnswer;
+
+          question.correctAnswer = question.correctAnswer.toLocaleLowerCase() === 'true'
+        }
+        if(question.choices?.[0] &&  question.choices?.[1]) {
+
+          question.choices[0].choiceText = false;
+          question.choices[1].choiceText = true;
         }
 
-        question.choices?.forEach((choice: any) => {
-          if (typeof choice.choiceText === 'string') {
-            const booleanChoice =
-              choice.choiceText.toLocaleLowerCase() === 'true' ? true : false;
-            choice.choiceText = booleanChoice;
-          }
-        });
       }
     });
 

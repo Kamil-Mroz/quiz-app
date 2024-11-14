@@ -15,7 +15,7 @@ dotenv.config()
 const app = express()
 
 const PORT = process.env.PORT || 3000
-const SECRET_KEY = process.env.SECRET_KEY || 'defaultkey'
+const SECRET_KEY = process.env.SECRET_KEY || 'defaultKey'
 
 app.use(bodyParser.json())
 
@@ -453,5 +453,5 @@ app.get('/quizzes/:id', (req: Request, res: Response) => {
 })
 
 app.listen(PORT, () => {
-  console.log(`Server is runnings on http://localhost:${PORT}`)
+  console.log(`Server is running on http://localhost:${PORT}`)
 })

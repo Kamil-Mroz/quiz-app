@@ -11,6 +11,7 @@ export function correctAnswerInChoicesValidator(): ValidatorFn {
     const correctAnswer = questionGroup.get('correctAnswer')?.value;
     const choices = questionGroup.get('choices')?.value;
     const questionType = questionGroup.get('type')?.value;
+    let message:string | undefined ;
 
     if (
       Array.isArray(choices) &&
@@ -28,17 +29,18 @@ export function correctAnswerInChoicesValidator(): ValidatorFn {
               choice.choiceText.toLowerCase() === correctAnswer.toLowerCase()
             );
           } else if (questionType === 'boolean') {
-            if (typeof choice.choiceText === typeof correctAnswer) {
-              return choice.choiceText === correctAnswer;
-            } else if (typeof choice.choiceText === 'string') {
-              return choice.choiceText.toLowerCase() === 'true'
-                ? true === correctAnswer
-                : false === correctAnswer;
-            } else {
-              return correctAnswer.toLowerCase() === 'true'
-                ? true === choice.choiceText
-                : false === choice.choiceText;
+            if (typeof correctAnswer === 'string') {
+              const containsBoolean = correctAnswer.toLowerCase() === "true" || correctAnswer.toLocaleLowerCase() === "false";
+              if(!containsBoolean) {
+                message = "Correct answer must be True or False"
+              }
+              return containsBoolean
             }
+            const containsBoolean = correctAnswer === false || correctAnswer === true;
+            if(!containsBoolean) {
+              message = "Correct answer must be True or False"
+            }
+            return containsBoolean;
           } else {
             return choice.choiceText == correctAnswer;
           }
@@ -47,7 +49,7 @@ export function correctAnswerInChoicesValidator(): ValidatorFn {
       return isValid
         ? null
         : {
-            correctAnswerNotInChoices:
+            correctAnswerNotInChoices: message ??
               'Correct answer must be one of the choices',
           };
     }
