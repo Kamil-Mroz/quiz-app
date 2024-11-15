@@ -162,10 +162,11 @@ app.get('/quizzes', (req: Request, res: Response) => {
   }
   if (sortBy && typeof sortBy === 'string') {
     quizzes = quizzes.sort((quizA, quizB) => {
-      if (sortBy === 'desc') {
-        return quizA.title.localeCompare(quizB.title)
+
+      if (sortBy === 'asc') {
+        return quizA.title.toLowerCase().localeCompare(quizB.title.toLowerCase())
       }
-      return quizB.title.localeCompare(quizA.title)
+      return quizB.title.toLowerCase().localeCompare(quizA.title.toLowerCase())
     })
   }
 
@@ -180,6 +181,7 @@ app.post('/quizzes', authenticate, (req: Request, res: Response) => {
     createdBy: req.user?.username,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    timesSolved:0
   }
   data.quizzes.push(newQuiz)
   saveData(data)
@@ -264,6 +266,14 @@ app.post(
       res.status(404).json({ message: 'Quiz not found' })
       return
     }
+    const quizIndex = data.quizzes.findIndex((quiz) => quiz.id === quizId)
+    if( quizIndex === -1) {
+        res.status(404).json({ message: 'Quiz not found' })
+        return
+    }
+
+    data.quizzes[quizIndex].timesSolved++
+
 
     let score = 0
     quiz.questions.forEach((question, index) => {
@@ -271,6 +281,7 @@ app.post(
         score++
       }
     })
+
     const accuracy = ((score / quiz.questions.length) * 100).toFixed(2)
 
     const existingUser = data.users.find((u) => u.username === user?.username)
@@ -458,6 +469,26 @@ app.get('/quizzes/:id', (req: Request, res: Response) => {
     return
   }
   res.json(quiz)
+})
+
+
+app.get('/leaderboard',(req:Request, res:Response) => {
+    const data:Data = loadData()
+    const topTenUsers= data.users.reduce((acc:{username: string,totalSolvedQuizzes: number}[],user:User):{username: string,totalSolvedQuizzes: number}[]=>{
+
+        if(user.solvedQuizzes && user.solvedQuizzes.length > 0){
+        acc.push({username: user.username,totalSolvedQuizzes: user.solvedQuizzes.length})
+        }
+
+        return acc
+    },[]).splice(0, data.users.length < 10 ? data.users.length : 10).sort((userA, userB)=>userA.totalSolvedQuizzes - userB.totalSolvedQuizzes);
+
+    if(!topTenUsers){
+        res.status(404).json({message:' Top users not found'})
+        return
+    }
+
+    res.json(topTenUsers)
 })
 
 app.listen(PORT, () => {

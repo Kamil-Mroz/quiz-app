@@ -1,0 +1,31 @@
+
+<div
+  class="max-w-4xl mx-auto p-6 bg-neutral-800 rounded-lg shadow-l"
+>
+  <h1 class="text-3xl font-extrabold text-neutral-100 mb-10 text-center">
+    Leaderboard
+  </h1>
+  <p *ngIf="isLoading && !errorMessage" class="loading">Loading quiz data...</p>
+
+  <div *ngIf="!isLoading && topUsers">
+    <div class="row">
+      <p>Lp</p>
+      <p>Username</p>
+      <p>Total solved quizzes</p>
+    </div>
+    <div *ngFor="let user of topUsers; let i = index" class="row">
+      <p>{{i + 1}}</p>
+      <p>{{user.username}}</p>
+      <p>{{user.totalSolvedQuizzes}}</p>
+    </div>
+
+  </div>
+  <div *ngIf="!isLoading && !topUsers">
+    <p class="loading">No user found</p>
+  </div>
+
+  <div *ngIf="errorMessage">
+    <p class="error">{{errorMessage}}</p>
+  </div>
+
+</div>

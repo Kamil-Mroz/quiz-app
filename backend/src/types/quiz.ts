@@ -8,6 +8,7 @@ export interface Quiz {
   createdBy: string
   createdAt: string
   updatedAt: string
+  timesSolved:number,
 }
 
 export interface Question {

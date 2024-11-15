@@ -233,8 +233,7 @@ export class EditQuizComponent implements OnInit {
 
           question.correctAnswer = question.correctAnswer.toLocaleLowerCase() === 'true'
         }
-        if(question.choices?.[0] &&  question.choices?.[1]) {
-
+        if(question.choices) {
           question.choices[0].choiceText = false;
           question.choices[1].choiceText = true;
         }

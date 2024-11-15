@@ -78,7 +78,7 @@ export class QuizService {
   ): Observable<{ score: number; accuracy: number }> {
     const token = this.authService.getToken();
     if (!token) return of();
-    const headers = new HttpHeaders({ 
+    const headers = new HttpHeaders({
       authorization: token,
     });
     return this.http.post<{ score: number; accuracy: number }>(
@@ -86,5 +86,9 @@ export class QuizService {
       { answers },
       { headers }
     );
+  }
+
+  getTopUsers(): Observable<{username: string, totalSolvedQuizzes: number}[]> {
+    return this.http.get<{username: string,totalSolvedQuizzes: number}[]>('http://localhost:3000/leaderboard');
   }
 }

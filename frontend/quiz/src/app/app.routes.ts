@@ -11,6 +11,7 @@ import { quizResolver } from './quiz.resolver';
 import { loggedInGuard } from './logged-in.guard';
 import { EditQuizComponent } from './pages/edit-quiz/edit-quiz.component';
 import { QuizSolveComponent } from './pages/quiz-solve/quiz-solve.component';
+import {LeaderboardComponent} from "./pages/leaderboard/leaderboard.component";
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -49,5 +50,6 @@ export const routes: Routes = [
     canActivate: [loggedInGuard],
   },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
+  { path: 'leaderboard', component: LeaderboardComponent  },
   { path: '**', component: NotFoundComponent },
 ];
