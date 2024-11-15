@@ -12,7 +12,7 @@ export class QuizService {
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  getQuizzes(category?: string, search?: string): Observable<Quiz[]> {
+  getQuizzes(category?: string, search?: string,sortBy?:string): Observable<Quiz[]> {
     let params = new HttpParams();
 
     if (category) {
@@ -20,6 +20,9 @@ export class QuizService {
     }
     if (search) {
       params = params.set('search', search);
+    }
+    if(sortBy){
+      params = params.set('sortBy',sortBy)
     }
 
     return this.http.get<Quiz[]>(this.apiUrl, { params });

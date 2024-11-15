@@ -21,6 +21,15 @@
         {{ category }}
       </option>
     </select>
+
+    <label>
+      Sort by title
+      <select [(ngModel)]="sortBy" (change)="onSortChange()">
+        <option value="">Choose option</option>
+        <option value="asc">Asc</option>
+        <option value="desc">Desc</option>
+      </select>
+    </label>
   </div>
 
   <app-quiz-list [quizzes]="quizzes"></app-quiz-list>

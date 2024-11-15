@@ -147,7 +147,7 @@ app.get('/profile', authenticate, (req: Request, res: Response) => {
 })
 
 app.get('/quizzes', (req: Request, res: Response) => {
-  const { category, search } = req.query
+  const { category, search, sortBy } = req.query
   const data: Data = loadData()
 
   let quizzes: Quiz[] = data.quizzes
@@ -159,6 +159,14 @@ app.get('/quizzes', (req: Request, res: Response) => {
     quizzes = quizzes.filter((quiz: Quiz) =>
       quiz.title.toLocaleLowerCase().includes(search.toLocaleLowerCase())
     )
+  }
+  if (sortBy && typeof sortBy === 'string') {
+    quizzes = quizzes.sort((quizA, quizB) => {
+      if (sortBy === 'desc') {
+        return quizA.title.localeCompare(quizB.title)
+      }
+      return quizB.title.localeCompare(quizA.title)
+    })
   }
 
   res.json(quizzes)

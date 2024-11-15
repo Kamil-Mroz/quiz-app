@@ -20,6 +20,7 @@ export class HomeComponent implements OnInit {
   searchQuery: string = '';
   errorMessage: string = '';
   isLoading: boolean = false;
+  sortBy:string = ''
 
   constructor(private quizService: QuizService) {}
 
@@ -46,6 +47,9 @@ export class HomeComponent implements OnInit {
   onSearchChange() {
     this.loadQuizzes();
   }
+  onSortChange(){
+    this.loadQuizzes()
+  }
 
   onCategoryChange() {
     this.loadQuizzes();
@@ -55,7 +59,7 @@ export class HomeComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
     this.quizService
-      .getQuizzes(this.selectedCategory, this.searchQuery)
+      .getQuizzes(this.selectedCategory, this.searchQuery, this.sortBy)
       .subscribe({
         next: (data) => {
           this.quizzes = data;
