@@ -24,7 +24,7 @@ export class QuizComponent implements OnInit {
     private location: Location,
     private authService: AuthService
   ) {}
-
+  
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       this.quizId = +params.get('id')!;

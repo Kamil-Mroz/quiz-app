@@ -11,7 +11,7 @@ import {
 import { Question, Quiz } from '../../../model';
 import { QuizService } from '../../services/quiz.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import {Location, NgFor, NgIf} from '@angular/common';
+import { Location, NgFor, NgIf } from '@angular/common';
 import { correctAnswerInChoicesValidator } from '../../validators/correct-answer-in-choices.validator';
 import { choiceTypeValidator } from '../../validators/choice-type.validator';
 
@@ -35,7 +35,7 @@ export class EditQuizComponent implements OnInit {
     private quizService: QuizService,
     private route: ActivatedRoute,
     private router: Router,
-    private location:Location,
+    private location: Location
   ) {}
 
   ngOnInit(): void {
@@ -49,7 +49,7 @@ export class EditQuizComponent implements OnInit {
     }
   }
 
-  goBack(){
+  goBack() {
     this.location.back();
   }
 
@@ -214,30 +214,33 @@ export class EditQuizComponent implements OnInit {
           question.correctAnswer = correctAnswerDate;
         }
 
-        question.choices?.forEach((choice: any) => {
-          const choiceDate:Date|null = this.convertDateStringToDate(choice.choiceText);
-          if (choiceDate) {
-            choice.choiceText = choiceDate;
+        question.choices?.forEach(
+          (choice: { choiceText: string | number | boolean | Date }) => {
+            const choiceDate: Date | null = this.convertDateStringToDate(
+              choice.choiceText as string
+            );
+            if (choiceDate) {
+              choice.choiceText = choiceDate;
+            }
           }
-        });
+        );
       } else if (question.type === 'numeric') {
-
         question.correctAnswer = Number(question.correctAnswer);
 
-        question.choices?.forEach((choice: any) => {
-
-          choice.choiceText = Number(choice.choiceText);
-        });
+        question.choices?.forEach(
+          (choice: { choiceText: string | number | boolean | Date }) => {
+            choice.choiceText = Number(choice.choiceText);
+          }
+        );
       } else if (question.type === 'boolean') {
         if (typeof question.correctAnswer === 'string') {
-
-          question.correctAnswer = question.correctAnswer.toLocaleLowerCase() === 'true'
+          question.correctAnswer =
+            question.correctAnswer.toLocaleLowerCase() === 'true';
         }
-        if(question.choices) {
+        if (question.choices) {
           question.choices[0].choiceText = false;
           question.choices[1].choiceText = true;
         }
-
       }
     });
 
@@ -303,15 +306,17 @@ export class EditQuizComponent implements OnInit {
           );
         }
 
-        question.choices?.forEach((choice: any) => {
-          if (typeof choice.choiceText === 'string') {
-            choice.choiceText = this.formatDateToDDMMYYYY(
-              new Date(choice.choiceText)
-            );
-          } else if (choice.choiceText instanceof Date) {
-            choice.choiceText = this.formatDateToDDMMYYYY(choice.choiceText);
+        question.choices?.forEach(
+          (choice: { choiceText: string | number | boolean | Date }) => {
+            if (typeof choice.choiceText === 'string') {
+              choice.choiceText = this.formatDateToDDMMYYYY(
+                new Date(choice.choiceText)
+              );
+            } else if (choice.choiceText instanceof Date) {
+              choice.choiceText = this.formatDateToDDMMYYYY(choice.choiceText);
+            }
           }
-        });
+        );
       }
     });
   }

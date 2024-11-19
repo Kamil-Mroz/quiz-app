@@ -50,12 +50,10 @@
   .row:nth-child(odd) {
     @apply bg-neutral-700;
   }
-  .row p{
+  .row p {
     @apply text-center;
   }
   .row p:last-child {
     @apply text-right;
   }
-
-
 }

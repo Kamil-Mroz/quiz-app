@@ -1,38 +1,37 @@
-import express, { Request, Response, NextFunction } from 'express'
-import cors from 'cors'
-import fs from 'fs'
-import path from 'path'
-import bodyParser from 'body-parser'
-import { fileURLToPath } from 'url'
-import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
-import dotenv from 'dotenv'
-import { SolvedQuiz, User } from './types/user'
-import { Quiz } from './types/quiz'
+import express, { Request, Response, NextFunction } from "express";
+import cors from "cors";
+import fs from "fs";
+import path from "path";
+import bodyParser from "body-parser";
+import { fileURLToPath } from "url";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import { SolvedQuiz, User } from "./types/user";
+import { Quiz } from "./types/quiz";
+import { Achievement } from "./types/achievement";
 
-dotenv.config()
+dotenv.config();
 
-const app = express()
+const app = express();
 
-const PORT = process.env.PORT || 3000
-const SECRET_KEY = process.env.SECRET_KEY || 'defaultKey'
+const PORT = process.env.PORT || 3000;
+const SECRET_KEY = process.env.SECRET_KEY || "defaultKey";
 
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
-const corsOptions = {
-  origin: 'http://localhost:4200',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}
-app.use(cors())
+app.use(cors());
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const DATA_PATH = path.join(__dirname, 'data.json')
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const DATA_PATH = path.join(__dirname, "data.json");
+
+app.use("/images", express.static(path.join(__dirname, "assets")));
 
 interface Data {
-  users: User[]
-  quizzes: Quiz[]
+  users: User[];
+  quizzes: Quiz[];
+  achievements: Achievement[];
 }
 
 function loadData() {
@@ -40,98 +39,142 @@ function loadData() {
     fs.writeFileSync(
       DATA_PATH,
       JSON.stringify({ users: [], quizzes: [] }),
-      'utf-8'
-    )
+      "utf-8"
+    );
   }
-  const data = fs.readFileSync(DATA_PATH, 'utf-8')
-  return JSON.parse(data)
+  const data = fs.readFileSync(DATA_PATH, "utf-8");
+  return JSON.parse(data);
 }
 
 function saveData(data: Data) {
-  fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), 'utf-8')
+  fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), "utf-8");
+}
+
+function checkAchievements(user: User) {
+  if (!user) return;
+  const data = loadData();
+  const achievements = data.achievements;
+  const unlocked: string[] = [];
+  achievements.forEach((achievement: Achievement) => {
+    const { type, value } = achievement.condition;
+
+    if (type === "quizAmount") {
+      if (
+        user.solvedQuizzes!.length >= value &&
+        !user.achievements.includes(achievement.id)
+      ) {
+        unlocked.push(achievement.id);
+      }
+    } else if (type === "correctAnswers") {
+      if (
+        user.correctAnswers >= value &&
+        !user.achievements.includes(achievement.id)
+      ) {
+        unlocked.push(achievement.id);
+      }
+    }
+  });
+  return unlocked;
 }
 
 function authenticate(req: Request, res: Response, next: NextFunction) {
-  const token = req.headers['authorization']
+  const token = req.headers["authorization"];
   if (!token) {
-    res.status(401).json({ message: 'Access denied' })
-    return
+    res.status(401).json({ message: "Access denied" });
+    return;
   }
 
   jwt.verify(token, SECRET_KEY, (err, user) => {
     if (err) {
-      res.status(403).json({ message: 'Invalid token' })
-      return
+      res.status(403).json({ message: "Invalid token" });
+      return;
     }
-    req.user = user as User
-    next()
-  })
+    req.user = user as User;
+    next();
+  });
 }
 
 function checkOwnership(req: Request, res: Response, quiz: Quiz) {
   if (quiz.createdBy !== req.user?.username) {
     res
       .status(403)
-      .json({ message: 'Access denied: You are not the owner of this quiz' })
-    return false
+      .json({ message: "Access denied: You are not the owner of this quiz" });
+    return false;
   }
-  return true
+  return true;
 }
 
-app.post('/register', async (req: Request, res: Response) => {
-  const { username, password, email } = req.body
-  const data = loadData()
+app.post("/register", async (req: Request, res: Response) => {
+  const { username, password, email } = req.body;
+  const data = loadData();
 
   if (data.users.find((user: User) => user.username === username)) {
-    res.status(400).json({ message: 'User already exists' })
-    return
+    res.status(400).json({ message: "User already exists" });
+    return;
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10)
+  const hashedPassword = await bcrypt.hash(password, 10);
   data.users.push({
     username,
     password: hashedPassword,
     email,
     solvedQuizzes: [],
-  })
-  saveData(data)
+  });
+  saveData(data);
 
-  res.status(201).json({ message: 'User registered successfully' })
-})
+  res.status(201).json({ message: "User registered successfully" });
+});
 
-app.post('/login', async (req: Request, res: Response) => {
-  const { username, password } = req.body
-  const data: Data = loadData()
-  const user = data.users.find((user: User) => user.username === username)
+app.post("/login", async (req: Request, res: Response) => {
+  const { username, password } = req.body;
+  const data: Data = loadData();
+  const user = data.users.find((user: User) => user.username === username);
 
   if (!user || !(await bcrypt.compare(password, user.password))) {
-    res.status(400).json({ message: 'Invalid credentials' })
-    return
+    res.status(400).json({ message: "Invalid credentials" });
+    return;
   }
 
-  const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '1d' })
+  const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: "1d" });
 
-  res.json({ message: 'Login successfully', token })
-})
+  res.json({ message: "Login successfully", token });
+});
 
-app.get('/profile', authenticate, (req: Request, res: Response) => {
-  const data: Data = loadData()
-  const user = data.users.find((u: User) => u.username === req.user?.username)
+app.get("/profile", authenticate, (req: Request, res: Response) => {
+  const data: Data = loadData();
+  const user = data.users.find((u: User) => u.username === req.user?.username);
 
   if (!user) {
-    res.status(404).json({ message: 'User not found' })
-    return
+    res.status(404).json({ message: "User not found" });
+    return;
   }
 
-  const solvedQuizzes: SolvedQuiz[] = user.solvedQuizzes ?? []
-  const totalQuizzesSolved = solvedQuizzes.length
+  const solvedQuizzes: SolvedQuiz[] = user.solvedQuizzes ?? [];
+  const totalQuizzesSolved = solvedQuizzes.length;
   const accuracy =
     totalQuizzesSolved > 0
       ? solvedQuizzes.reduce(
           (acc: number, quiz: SolvedQuiz) => acc + (quiz.accuracy ?? 0),
           0
         ) / totalQuizzesSolved
-      : 0
+      : 0;
+
+  const achievements = data.achievements.reduce(
+    (
+      acc: { name: string; description: string; url: string }[],
+      achievement: Achievement
+    ) => {
+      if (user.achievements.includes(achievement.id)) {
+        acc.push({
+          name: achievement.name,
+          description: achievement.description,
+          url: achievement.url,
+        });
+      }
+      return acc;
+    },
+    []
+  );
 
   res.json({
     user: {
@@ -143,354 +186,379 @@ app.get('/profile', authenticate, (req: Request, res: Response) => {
       totalQuizzesSolved: totalQuizzesSolved,
       accuracy: accuracy,
     },
-  })
-})
+    achievements,
+  });
+});
 
-app.get('/quizzes', (req: Request, res: Response) => {
-  const { category, search, sortBy } = req.query
-  const data: Data = loadData()
+app.get("/quizzes", (req: Request, res: Response) => {
+  const { category, search, sortBy } = req.query;
+  const data: Data = loadData();
 
-  let quizzes: Quiz[] = data.quizzes
+  let quizzes: Quiz[] = data.quizzes;
 
-  if (category && typeof category === 'string') {
-    quizzes = quizzes.filter((quiz: Quiz) => quiz.category === category)
+  if (category && typeof category === "string") {
+    quizzes = quizzes.filter((quiz: Quiz) => quiz.category === category);
   }
-  if (search && typeof search === 'string') {
+  if (search && typeof search === "string") {
     quizzes = quizzes.filter((quiz: Quiz) =>
       quiz.title.toLocaleLowerCase().includes(search.toLocaleLowerCase())
-    )
+    );
   }
-  if (sortBy && typeof sortBy === 'string') {
+  if (sortBy && typeof sortBy === "string") {
     quizzes = quizzes.sort((quizA, quizB) => {
-
-      if (sortBy === 'asc') {
-        return quizA.title.toLowerCase().localeCompare(quizB.title.toLowerCase())
+      if (sortBy === "asc") {
+        return quizA.title
+          .toLowerCase()
+          .localeCompare(quizB.title.toLowerCase());
       }
-      return quizB.title.toLowerCase().localeCompare(quizA.title.toLowerCase())
-    })
+      return quizB.title.toLowerCase().localeCompare(quizA.title.toLowerCase());
+    });
   }
 
-  res.json(quizzes)
-})
+  res.json(quizzes);
+});
 
-app.post('/quizzes', authenticate, (req: Request, res: Response) => {
-  const data: Data = loadData()
+app.post("/quizzes", authenticate, (req: Request, res: Response) => {
+  const data: Data = loadData();
   const newQuiz: Quiz = {
     id: Date.now(),
     ...req.body,
     createdBy: req.user?.username,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    timesSolved:0
-  }
-  data.quizzes.push(newQuiz)
-  saveData(data)
+    timesSolved: 0,
+  };
+  data.quizzes.push(newQuiz);
+  saveData(data);
 
-  res.json({ message: 'Quiz created successfully', quiz: newQuiz })
-})
+  res.json({ message: "Quiz created successfully", quiz: newQuiz });
+});
 
-app.put('/quizzes/:id', authenticate, (req: Request, res: Response) => {
-  const data: Data = loadData()
-  const quizId = parseInt(req.params.id)
-  const quizIndex = data.quizzes.findIndex((quiz) => quiz.id === quizId)
+app.put("/quizzes/:id", authenticate, (req: Request, res: Response) => {
+  const data: Data = loadData();
+  const quizId = parseInt(req.params.id);
+  const quizIndex = data.quizzes.findIndex((quiz) => quiz.id === quizId);
 
   if (quizIndex === -1) {
-    res.status(404).json({ message: 'Quiz not found' })
-    return
+    res.status(404).json({ message: "Quiz not found" });
+    return;
   }
 
-  const quiz = data.quizzes[quizIndex]
-  if (!checkOwnership(req, res, quiz)) return
+  const quiz = data.quizzes[quizIndex];
+  if (!checkOwnership(req, res, quiz)) return;
 
   data.quizzes[quizIndex] = {
     ...quiz,
     ...req.body,
     updatedAt: new Date().toISOString(),
-  }
-  saveData(data)
+  };
+  saveData(data);
 
   res.json({
-    message: 'Quiz updated successfully',
+    message: "Quiz updated successfully",
     quiz: data.quizzes[quizIndex],
-  })
-})
+  });
+});
 
-app.delete('/quizzes/:id', authenticate, (req: Request, res: Response) => {
-  const data: Data = loadData()
-  const quizId = parseInt(req.params.id)
+app.delete("/quizzes/:id", authenticate, (req: Request, res: Response) => {
+  const data: Data = loadData();
+  const quizId = parseInt(req.params.id);
 
-  const quizIndex = data.quizzes.findIndex((quiz) => quiz.id === quizId)
+  const quizIndex = data.quizzes.findIndex((quiz) => quiz.id === quizId);
 
   if (quizIndex === -1) {
-    res.status(404).json({ message: 'Quiz not found' })
-    return
+    res.status(404).json({ message: "Quiz not found" });
+    return;
   }
 
-  const quiz = data.quizzes[quizIndex]
-  if (!checkOwnership(req, res, quiz)) return
+  const quiz = data.quizzes[quizIndex];
+  if (!checkOwnership(req, res, quiz)) return;
 
-  data.quizzes.splice(quizIndex, 1)
-  saveData(data)
+  data.quizzes.splice(quizIndex, 1);
+  saveData(data);
 
-  res.json({ message: 'Quiz deleted successfully' })
-})
+  res.json({ message: "Quiz deleted successfully" });
+});
 
 app.get(
-  '/quizzes/:quizId/questions',
+  "/quizzes/:quizId/questions",
   authenticate,
   (req: Request, res: Response) => {
-    const quizId = parseInt(req.params.quizId)
-    const data: Data = loadData()
-    const quiz = data.quizzes.find((q) => q.id === quizId)
+    const quizId = parseInt(req.params.quizId);
+    const data: Data = loadData();
+    const quiz = data.quizzes.find((q) => q.id === quizId);
 
     if (!quiz) {
-      res.status(404).json({ message: 'Quiz not found' })
-      return
+      res.status(404).json({ message: "Quiz not found" });
+      return;
     }
 
-    res.json(quiz.questions)
+    res.json(quiz.questions);
   }
-)
+);
 
 app.post(
-  '/quizzes/:quizId/attempt',
+  "/quizzes/:quizId/attempt",
   authenticate,
   (req: Request, res: Response) => {
-    const { answers } = req.body
-    const quizId = parseInt(req.params.quizId)
-    const user = req.user
-    const data: Data = loadData()
-    const quiz = data.quizzes.find((q) => q.id === quizId)
+    const { answers } = req.body;
+    const quizId = parseInt(req.params.quizId);
+    const user = req.user;
+    const data: Data = loadData();
+    const quiz = data.quizzes.find((q) => q.id === quizId);
 
     if (!quiz) {
-      res.status(404).json({ message: 'Quiz not found' })
-      return
+      res.status(404).json({ message: "Quiz not found" });
+      return;
     }
-    const quizIndex = data.quizzes.findIndex((quiz) => quiz.id === quizId)
-    if( quizIndex === -1) {
-        res.status(404).json({ message: 'Quiz not found' })
-        return
+    const quizIndex = data.quizzes.findIndex((quiz) => quiz.id === quizId);
+    if (quizIndex === -1) {
+      res.status(404).json({ message: "Quiz not found" });
+      return;
     }
 
-    data.quizzes[quizIndex].timesSolved++
+    data.quizzes[quizIndex].timesSolved++;
 
-
-    let score = 0
+    let score = 0;
     quiz.questions.forEach((question, index) => {
       if (question.correctAnswer == answers[index]) {
-        score++
+        score++;
       }
-    })
+    });
 
-    const accuracy = ((score / quiz.questions.length) * 100).toFixed(2)
+    const accuracy = ((score / quiz.questions.length) * 100).toFixed(2);
 
-    const existingUser = data.users.find((u) => u.username === user?.username)
+    const existingUser = data.users.find((u) => u.username === user?.username);
 
     if (!existingUser) {
-      res.status(404).json({ message: 'User not found' })
-      return
+      res.status(404).json({ message: "User not found" });
+      return;
     }
 
     const solvedQuiz: SolvedQuiz = {
       quizId,
       accuracy: parseFloat(accuracy),
-    }
+    };
 
     const existingSolvedQuiz = existingUser.solvedQuizzes?.find(
       (sq) => sq.quizId === quizId
-    )
+    );
 
     if (existingSolvedQuiz) {
-      existingSolvedQuiz.accuracy = parseFloat(accuracy)
+      existingSolvedQuiz.accuracy = parseFloat(accuracy);
     } else {
-      existingUser.solvedQuizzes = existingUser.solvedQuizzes || []
-      existingUser.solvedQuizzes.push(solvedQuiz)
+      existingUser.solvedQuizzes = existingUser.solvedQuizzes || [];
+      existingUser.solvedQuizzes.push(solvedQuiz);
+    }
+    existingUser.correctAnswers += score;
+
+    const newAchievements = checkAchievements(existingUser);
+    let achievementUnlocked = false;
+    if (newAchievements && newAchievements.length > 0) {
+      existingUser.achievements = [
+        ...existingUser.achievements,
+        ...newAchievements,
+      ];
+      achievementUnlocked;
     }
 
-    saveData(data)
+    saveData(data);
 
     res.json({
-      message: 'Quiz submitted',
+      message: "Quiz submitted",
       score,
       totalQuestions: quiz.questions.length,
       accuracy: accuracy,
-    })
+      achievementUnlocked,
+    });
   }
-)
+);
 
 app.get(
-  '/quizzes/:quizId/question/:questionId',
+  "/quizzes/:quizId/question/:questionId",
   authenticate,
   (req: Request, res: Response) => {
-    const data: Data = loadData()
-    const quizId = parseInt(req.params.quizId)
-    const questionId = parseInt(req.params.questionId)
-    const quiz = data.quizzes.find((quiz) => quiz.id === quizId)
+    const data: Data = loadData();
+    const quizId = parseInt(req.params.quizId);
+    const questionId = parseInt(req.params.questionId);
+    const quiz = data.quizzes.find((quiz) => quiz.id === quizId);
 
     if (!quiz) {
-      res.status(404).json({ message: 'Quiz not found' })
-      return
+      res.status(404).json({ message: "Quiz not found" });
+      return;
     }
 
-    if (!checkOwnership(req, res, quiz)) return
+    if (!checkOwnership(req, res, quiz)) return;
 
-    const question = quiz.questions.find((q) => q.id === questionId)
+    const question = quiz.questions.find((q) => q.id === questionId);
     if (!question) {
-      res.status(404).json({ message: 'Question not found' })
-      return
+      res.status(404).json({ message: "Question not found" });
+      return;
     }
 
-    res.json(question)
+    res.json(question);
   }
-)
+);
 
 app.post(
-  '/quizzes/:quizId/question',
+  "/quizzes/:quizId/question",
   authenticate,
   (req: Request, res: Response) => {
-    const data: Data = loadData()
-    const quizId = parseInt(req.params.quizId)
+    const data: Data = loadData();
+    const quizId = parseInt(req.params.quizId);
 
-    const quiz = data.quizzes.find((quiz) => quiz.id === quizId)
+    const quiz = data.quizzes.find((quiz) => quiz.id === quizId);
     if (!quiz) {
-      res.status(404).json({ message: 'Quiz not found' })
-      return
+      res.status(404).json({ message: "Quiz not found" });
+      return;
     }
 
-    if (!checkOwnership(req, res, quiz)) return
+    if (!checkOwnership(req, res, quiz)) return;
 
-    if (!quiz.questions) quiz.questions = []
+    if (!quiz.questions) quiz.questions = [];
 
     const newQuestion = {
       id: Date.now(),
       ...req.body,
-    }
+    };
 
-    quiz.questions.push(newQuestion)
-    quiz.updatedAt = new Date().toISOString()
-    saveData(data)
+    quiz.questions.push(newQuestion);
+    quiz.updatedAt = new Date().toISOString();
+    saveData(data);
 
     res
       .status(201)
-      .json({ message: 'Question added successfully', question: newQuestion })
+      .json({ message: "Question added successfully", question: newQuestion });
   }
-)
+);
 
 app.put(
-  '/quizzes/:quizId/question/:questionId',
+  "/quizzes/:quizId/question/:questionId",
   authenticate,
   (req: Request, res: Response) => {
-    const data: Data = loadData()
-    const quizId = parseInt(req.params.quizId)
-    const questionId = parseInt(req.params.questionId)
+    const data: Data = loadData();
+    const quizId = parseInt(req.params.quizId);
+    const questionId = parseInt(req.params.questionId);
 
-    const quiz = data.quizzes.find((quiz) => quiz.id === quizId)
+    const quiz = data.quizzes.find((quiz) => quiz.id === quizId);
 
     if (!quiz) {
-      res.status(404).json({ message: 'Quiz not found' })
-      return
+      res.status(404).json({ message: "Quiz not found" });
+      return;
     }
 
-    if (!checkOwnership(req, res, quiz)) return
+    if (!checkOwnership(req, res, quiz)) return;
 
-    const questionIndex = quiz.questions.findIndex((q) => q.id === questionId)
+    const questionIndex = quiz.questions.findIndex((q) => q.id === questionId);
     if (questionIndex === -1) {
-      res.status(404).json({ message: 'Question not found' })
-      return
+      res.status(404).json({ message: "Question not found" });
+      return;
     }
 
     quiz.questions[questionIndex] = {
       ...quiz.questions[questionIndex],
       ...req.body,
-    }
-    quiz.updatedAt = new Date().toISOString()
-    saveData(data)
+    };
+    quiz.updatedAt = new Date().toISOString();
+    saveData(data);
     res.json({
-      message: 'Question updated successfully',
+      message: "Question updated successfully",
       question: quiz.questions[questionIndex],
-    })
+    });
   }
-)
+);
 
 app.delete(
-  '/quizzes/:quizId/question/:questionId',
+  "/quizzes/:quizId/question/:questionId",
   authenticate,
   (req: Request, res: Response) => {
-    const data: Data = loadData()
-    const quizId = parseInt(req.params.quizId)
-    const questionId = parseInt(req.params.questionId)
+    const data: Data = loadData();
+    const quizId = parseInt(req.params.quizId);
+    const questionId = parseInt(req.params.questionId);
 
-    const quiz = data.quizzes.find((quiz) => quiz.id === quizId)
+    const quiz = data.quizzes.find((quiz) => quiz.id === quizId);
     if (!quiz) {
-      res.status(404).json({ message: 'Quiz not found' })
-      return
+      res.status(404).json({ message: "Quiz not found" });
+      return;
     }
 
-    if (!checkOwnership(req, res, quiz)) return
+    if (!checkOwnership(req, res, quiz)) return;
 
-    const questionIndex = quiz.questions.findIndex((q) => q.id === questionId)
+    const questionIndex = quiz.questions.findIndex((q) => q.id === questionId);
     if (questionIndex === -1) {
-      res.status(404).json({ message: 'Question not found' })
-      return
+      res.status(404).json({ message: "Question not found" });
+      return;
     }
 
-    quiz.questions.splice(questionIndex, 1)
-    quiz.updatedAt = new Date().toISOString()
-    saveData(data)
+    quiz.questions.splice(questionIndex, 1);
+    quiz.updatedAt = new Date().toISOString();
+    saveData(data);
 
-    res.json({ message: 'Question deleted successfully' })
+    res.json({ message: "Question deleted successfully" });
   }
-)
+);
 
-app.get('/quizzes/categories', (req: Request, res: Response) => {
-  const data: Data = loadData()
-  const categories = [...new Set(data.quizzes.map((quiz) => quiz.category))]
-  res.json(categories)
-})
+app.get("/quizzes/categories", (req: Request, res: Response) => {
+  const data: Data = loadData();
+  const categories = [...new Set(data.quizzes.map((quiz) => quiz.category))];
+  res.json(categories);
+});
 
-app.get('/quizzes/own', authenticate, (req: Request, res: Response) => {
-  const data: Data = loadData()
+app.get("/quizzes/own", authenticate, (req: Request, res: Response) => {
+  const data: Data = loadData();
 
   const ownQuizzes = data.quizzes.filter(
     (quiz) => quiz.createdBy === req.user?.username
-  )
+  );
 
-  res.json(ownQuizzes)
-})
+  res.json(ownQuizzes);
+});
 
-app.get('/quizzes/:id', (req: Request, res: Response) => {
-  const data: Data = loadData()
-  const quizId = parseInt(req.params.id)
+app.get("/quizzes/:id", (req: Request, res: Response) => {
+  const data: Data = loadData();
+  const quizId = parseInt(req.params.id);
 
-  const quiz = data.quizzes.find((q) => q.id === quizId)
+  const quiz = data.quizzes.find((q) => q.id === quizId);
 
   if (!quiz) {
-    res.status(404).json({ message: 'Quiz not found' })
-    return
+    res.status(404).json({ message: "Quiz not found" });
+    return;
   }
-  res.json(quiz)
-})
+  res.json(quiz);
+});
 
-
-app.get('/leaderboard',(req:Request, res:Response) => {
-    const data:Data = loadData()
-    const topTenUsers= data.users.reduce((acc:{username: string,totalSolvedQuizzes: number}[],user:User):{username: string,totalSolvedQuizzes: number}[]=>{
-
-        if(user.solvedQuizzes && user.solvedQuizzes.length > 0){
-        acc.push({username: user.username,totalSolvedQuizzes: user.solvedQuizzes.length})
+app.get("/leaderboard", (req: Request, res: Response) => {
+  const data: Data = loadData();
+  const topTenUsers = data.users
+    .reduce(
+      (
+        acc: { username: string; totalSolvedQuizzes: number }[],
+        user: User
+      ): { username: string; totalSolvedQuizzes: number }[] => {
+        if (user.solvedQuizzes && user.solvedQuizzes.length > 0) {
+          acc.push({
+            username: user.username,
+            totalSolvedQuizzes: user.solvedQuizzes.length,
+          });
         }
 
-        return acc
-    },[]).splice(0, data.users.length < 10 ? data.users.length : 10).sort((userA, userB)=>userA.totalSolvedQuizzes - userB.totalSolvedQuizzes);
+        return acc;
+      },
+      []
+    )
+    .splice(0, data.users.length < 10 ? data.users.length : 10)
+    .sort(
+      (userA, userB) => userA.totalSolvedQuizzes - userB.totalSolvedQuizzes
+    );
 
-    if(!topTenUsers){
-        res.status(404).json({message:' Top users not found'})
-        return
-    }
+  if (!topTenUsers) {
+    res.status(404).json({ message: " Top users not found" });
+    return;
+  }
 
-    res.json(topTenUsers)
-})
+  res.json(topTenUsers);
+});
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`)
-})
+  console.log(`Server is running on http://localhost:${PORT}`);
+});

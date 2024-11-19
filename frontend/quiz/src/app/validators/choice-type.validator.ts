@@ -79,7 +79,7 @@ export function choiceTypeValidator(questionType: string): ValidatorFn {
     }
 
     if (questionType === 'boolean') {
-      return null
+      return null;
     }
 
     return null;

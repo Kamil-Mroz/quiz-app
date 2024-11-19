@@ -25,6 +25,8 @@ export interface User {
   email: string;
   token: string;
   solvedQuizzes?: SolvedQuiz[];
+  achievements: string[];
+  correctAnswers: number;
 }
 
 export interface SolvedQuiz {

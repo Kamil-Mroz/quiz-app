@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, Observable, throwError } from 'rxjs';
+import { SolvedQuiz } from '../../model';
 
 @Injectable({
   providedIn: 'root',
@@ -43,13 +44,45 @@ export class AuthService {
       );
   }
 
-  getProfile(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/profile`).pipe(
-      catchError((error) => {
-        const errorMessage = error?.message || 'Failed to fetch user profile';
-        return throwError(() => new Error(errorMessage));
-      })
-    );
+  getProfile(): Observable<{
+    user: {
+      username: string;
+      email: string;
+      solvedQuizzes: SolvedQuiz[];
+    };
+    stats: {
+      totalQuizzesSolved: number;
+      accuracy: number;
+    };
+    achievements:{
+        name:string,
+        description:string,
+        url:string,
+      }[]
+  }> {
+    return this.http
+      .get<{
+        user: {
+          username: string;
+          email: string;
+          solvedQuizzes: SolvedQuiz[];
+        };
+        stats: {
+          totalQuizzesSolved: number;
+          accuracy: number;
+        };
+        achievements: {
+          name: string;
+          description: string;
+          url: string;
+        }[];
+      }>(`${this.apiUrl}/profile`)
+      .pipe(
+        catchError((error) => {
+          const errorMessage = error?.message || 'Failed to fetch user profile';
+          return throwError(() => new Error(errorMessage));
+        })
+      );
   }
 
   setToken(token: string): void {

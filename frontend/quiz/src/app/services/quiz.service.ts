@@ -12,7 +12,11 @@ export class QuizService {
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  getQuizzes(category?: string, search?: string,sortBy?:string): Observable<Quiz[]> {
+  getQuizzes(
+    category?: string,
+    search?: string,
+    sortBy?: string
+  ): Observable<Quiz[]> {
     let params = new HttpParams();
 
     if (category) {
@@ -21,8 +25,8 @@ export class QuizService {
     if (search) {
       params = params.set('search', search);
     }
-    if(sortBy){
-      params = params.set('sortBy',sortBy)
+    if (sortBy) {
+      params = params.set('sortBy', sortBy);
     }
 
     return this.http.get<Quiz[]>(this.apiUrl, { params });
@@ -74,7 +78,7 @@ export class QuizService {
 
   submitQuizAttempt(
     quizId: number,
-    answers: any[]
+    answers: (string | number | boolean | Date)[]
   ): Observable<{ score: number; accuracy: number }> {
     const token = this.authService.getToken();
     if (!token) return of();
@@ -88,7 +92,11 @@ export class QuizService {
     );
   }
 
-  getTopUsers(): Observable<{username: string, totalSolvedQuizzes: number}[]> {
-    return this.http.get<{username: string,totalSolvedQuizzes: number}[]>('http://localhost:3000/leaderboard');
+  getTopUsers(): Observable<
+    { username: string; totalSolvedQuizzes: number }[]
+  > {
+    return this.http.get<{ username: string; totalSolvedQuizzes: number }[]>(
+      'http://localhost:3000/leaderboard'
+    );
   }
 }
