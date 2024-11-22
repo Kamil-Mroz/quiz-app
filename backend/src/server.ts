@@ -55,9 +55,10 @@ function checkAchievements(user: User) {
   const data = loadData();
   const achievements = data.achievements;
   const unlocked: string[] = [];
+  console.log(user);
   achievements.forEach((achievement: Achievement) => {
     const { type, value } = achievement.condition;
-
+    console.log(type, value);
     if (type === "quizAmount") {
       if (
         user.solvedQuizzes!.length >= value &&
@@ -74,6 +75,7 @@ function checkAchievements(user: User) {
       }
     }
   });
+  console.log(unlocked);
   return unlocked;
 }
 
@@ -119,6 +121,8 @@ app.post("/register", async (req: Request, res: Response) => {
     password: hashedPassword,
     email,
     solvedQuizzes: [],
+    achievements: [],
+    correctAnswers: 0,
   });
   saveData(data);
 

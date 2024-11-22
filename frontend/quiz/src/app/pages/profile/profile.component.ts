@@ -43,7 +43,6 @@ export class ProfileComponent implements OnInit {
         this.user = data.user;
         this.stats = data.stats;
         this.achievements = data.achievements;
-        console.log(this.achievements);
       },
       error: (error) => {
         this.errorMessage = error.message;
