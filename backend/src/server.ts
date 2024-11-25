@@ -119,6 +119,8 @@ app.post("/register", async (req: Request, res: Response) => {
     password: hashedPassword,
     email,
     solvedQuizzes: [],
+    correctAnswers: 0,
+    achievements: [],
   });
   saveData(data);
 
@@ -207,11 +209,11 @@ app.get("/quizzes", (req: Request, res: Response) => {
   if (sortBy && typeof sortBy === "string") {
     quizzes = quizzes.sort((quizA, quizB) => {
       if (sortBy === "asc") {
-        return quizA.title
+        return quizB.title
           .toLowerCase()
-          .localeCompare(quizB.title.toLowerCase());
+          .localeCompare(quizA.title.toLowerCase());
       }
-      return quizB.title.toLowerCase().localeCompare(quizA.title.toLowerCase());
+      return quizA.title.toLowerCase().localeCompare(quizB.title.toLowerCase());
     });
   }
 
@@ -353,13 +355,14 @@ app.post(
     existingUser.correctAnswers += score;
 
     const newAchievements = checkAchievements(existingUser);
+
     let achievementUnlocked = false;
     if (newAchievements && newAchievements.length > 0) {
       existingUser.achievements = [
         ...existingUser.achievements,
         ...newAchievements,
       ];
-      achievementUnlocked;
+      achievementUnlocked = true;
     }
 
     saveData(data);
@@ -367,7 +370,6 @@ app.post(
     res.json({
       message: "Quiz submitted",
       score,
-      totalQuestions: quiz.questions.length,
       accuracy: accuracy,
       achievementUnlocked,
     });
@@ -502,6 +504,11 @@ app.get("/quizzes/categories", (req: Request, res: Response) => {
   const data: Data = loadData();
   const categories = [...new Set(data.quizzes.map((quiz) => quiz.category))];
   res.json(categories);
+});
+app.get("/quizzes/all-questions", (req: Request, res: Response) => {
+  const data: Data = loadData();
+  const allQuizzes = data.quizzes.map((quiz) => quiz.title.toLowerCase());
+  res.json(allQuizzes);
 });
 
 app.get("/quizzes/own", authenticate, (req: Request, res: Response) => {

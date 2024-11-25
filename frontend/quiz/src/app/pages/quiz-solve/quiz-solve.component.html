@@ -9,6 +9,12 @@
     <h3 class="text-xl font-semibold text-white mb-2">Quiz Result</h3>
     <p class="text-neutral-300">Score: {{ score }}</p>
     <p class="text-neutral-300">Accuracy: {{ accuracy }}%</p>
+    <div *ngIf="achievementUnlocked">
+      <p class="text-green-500 text-xl">New achievement unlocked</p>
+      <a routerLink="/profile" class="text-blue-400 hover:underline">
+        Go to profile</a
+      >
+    </div>
     <a routerLink="/" class="text-blue-400 hover:underline"> View Quizzes </a>
   </div>
 

@@ -79,17 +79,21 @@ export class QuizService {
   submitQuizAttempt(
     quizId: number,
     answers: (string | number | boolean | Date)[]
-  ): Observable<{ score: number; accuracy: number }> {
+  ): Observable<{
+    score: number;
+    accuracy: number;
+    achievementUnlocked: boolean;
+  }> {
     const token = this.authService.getToken();
     if (!token) return of();
     const headers = new HttpHeaders({
       authorization: token,
     });
-    return this.http.post<{ score: number; accuracy: number }>(
-      `${this.apiUrl}/${quizId}/attempt`,
-      { answers },
-      { headers }
-    );
+    return this.http.post<{
+      score: number;
+      accuracy: number;
+      achievementUnlocked: boolean;
+    }>(`${this.apiUrl}/${quizId}/attempt`, { answers }, { headers });
   }
 
   getTopUsers(): Observable<
@@ -98,5 +102,9 @@ export class QuizService {
     return this.http.get<{ username: string; totalSolvedQuizzes: number }[]>(
       'http://localhost:3000/leaderboard'
     );
+  }
+
+  getAllQuizTitles(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/all-questions`);
   }
 }

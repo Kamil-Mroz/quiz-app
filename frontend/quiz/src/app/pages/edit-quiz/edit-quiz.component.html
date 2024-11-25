@@ -1,13 +1,9 @@
-
-
 <div *ngIf="isLoading" class="loading text-center py-6 text-xl">Loading...</div>
-
 
 <div
   *ngIf="!isLoading"
   class="max-w-4xl mx-auto p-6 bg-neutral-900 shadow-lg rounded-lg"
 >
-
   <button
     (click)="goBack()"
     class="mb-4 text-blue-500 hover:text-blue-700 font-semibold underline"
@@ -39,6 +35,12 @@
           *ngIf="quizForm.get('title')?.errors?.['required']"
         >
           Title is required.
+        </small>
+        <small
+          class="error"
+          *ngIf="quizForm.get('title')?.hasError('uniqueTitle')"
+        >
+          Title must be uniques
         </small>
       </div>
     </div>
@@ -150,7 +152,7 @@
         <!-- Question Type -->
         <div>
           <label for="type" class="block text-lg font-medium text-neutral-300"
-          >Question Type</label
+            >Question Type</label
           >
           <select
             formControlName="type"
@@ -176,8 +178,6 @@
           />
         </div>
 
-
-
         <!-- Correct Answer -->
         <div>
           <label
@@ -192,11 +192,8 @@
           />
         </div>
 
-
-
         <!-- Choices Section -->
         <div *ngIf="questions().at(i).get('type')?.value !== 'boolean'">
-
           <div formArrayName="choices" class="space-y-4">
             <div
               *ngFor="let choice of getChoices(i).controls; let j = index"
@@ -226,7 +223,9 @@
                 *ngIf="choice.get('choiceText')?.hasError('invalidNumber')"
                 class="error"
               >
-                {{ choice.get("choiceText")?.getError("invalidNumber")?.message }}
+                {{
+                  choice.get("choiceText")?.getError("invalidNumber")?.message
+                }}
               </div>
 
               <div
@@ -241,7 +240,8 @@
                 class="error"
               >
                 {{
-                  choice.get("choiceText")?.getError("invalidDateFormat")?.message
+                  choice.get("choiceText")?.getError("invalidDateFormat")
+                    ?.message
                 }}
               </div>
 
@@ -254,7 +254,6 @@
                 }}
               </div>
             </div>
-
 
             <button
               *ngIf="
@@ -274,9 +273,7 @@
           *ngIf="questions().at(i).hasError('correctAnswerNotInChoices')"
           class="error"
         >
-         {{
-          questions().at(i).getError("correctAnswerNotInChoices")
-          }}
+          {{ questions().at(i).getError("correctAnswerNotInChoices") }}
         </div>
 
         <!-- Remove Question Button -->

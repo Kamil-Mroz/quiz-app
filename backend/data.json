@@ -183,21 +183,21 @@
       "id": "pierwszy_quiz",
       "name": "Pierwszy Quiz",
       "description": "Rozwiąż pierwszy quiz.",
-      "condition": { "typ": "quizAmount", "value": 1 },
+      "condition": { "type": "quizAmount", "value": 1 },
       "url": "pierwszy_quiz.webp"
     },
     {
       "id": "ekspert",
       "name": "Ekspert",
       "description": "Rozwiąż 10 quizów.",
-      "condition": { "typ": "quizAmount", "value": 10 },
+      "condition": { "type": "quizAmount", "value": 10 },
       "url": "ekspert.webp"
     },
     {
       "id": "100_poprawnych",
       "name": "100 Poprawnych Odpowiedzi",
       "description": "Odpowiedz poprawnie na 100 pytań.",
-      "condition": { "typ": "correctAnswers", "value": 100 },
+      "condition": { "type": "correctAnswers", "value": 100 },
       "url": "100_poprawnych.webp"
     }
   ]

@@ -22,6 +22,7 @@ export class QuizSolveComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   timeRemaining: number = 0;
   timerInterval: any;
+  achievementUnlocked?: boolean;
 
   constructor(
     private quizService: QuizService,
@@ -90,6 +91,7 @@ export class QuizSolveComponent implements OnInit, OnDestroy {
         next: (data) => {
           this.score = data.score;
           this.accuracy = data.accuracy;
+          this.achievementUnlocked = data.achievementUnlocked;
         },
         error: (error) => {
           this.errorMessage = error.message;

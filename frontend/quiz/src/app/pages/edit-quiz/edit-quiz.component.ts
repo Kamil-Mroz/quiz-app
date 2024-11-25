@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { afterNextRender, Component, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -14,6 +14,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Location, NgFor, NgIf } from '@angular/common';
 import { correctAnswerInChoicesValidator } from '../../validators/correct-answer-in-choices.validator';
 import { choiceTypeValidator } from '../../validators/choice-type.validator';
+import { uniqueTitleValidator } from '../../validators/unique-title.validator';
 
 @Component({
   selector: 'app-edit-quiz',
@@ -27,8 +28,9 @@ export class EditQuizComponent implements OnInit {
   quizId: number | null = null;
   isLoading: boolean = false;
   isEditing: boolean = false;
-  quiz: Quiz | null = null;
+  quiz?: Quiz;
   errorMessage = '';
+  titles?: string[];
 
   constructor(
     private fb: FormBuilder,
@@ -40,22 +42,48 @@ export class EditQuizComponent implements OnInit {
 
   ngOnInit(): void {
     this.quizId = this.route.snapshot.params['id'];
-    if (this.quizId) {
-      this.isEditing = true;
-      this.fetchQuiz(this.quizId);
-    } else {
-      this.isEditing = false;
-      this.initializeForm();
-    }
+    this.quizService.getAllQuizTitles().subscribe({
+      next: (titles: string[]) => {
+        this.titles = titles;
+      },
+    });
+    this.initializeForm(this.titles || []);
+
+    this.quizService.getAllQuizTitles().subscribe({
+      next: (titles: string[]) => {
+        this.titles = titles;
+
+        // Now that titles are fetched, initialize the form based on whether we are editing or creating
+        if (this.quizId) {
+          this.isEditing = true;
+          this.fetchQuiz(this.quizId);
+        } else {
+          this.isEditing = false;
+          this.initializeForm(this.titles);
+        }
+
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.errorMessage = error.message;
+        this.isLoading = false;
+      },
+    });
   }
 
   goBack() {
     this.location.back();
   }
 
-  initializeForm(quiz?: Quiz) {
+  initializeForm(existingTitles: string[], quiz?: Quiz) {
     this.quizForm = this.fb.group({
-      title: [quiz?.title || '', [Validators.required]],
+      title: [
+        quiz?.title || '',
+        [
+          Validators.required,
+          uniqueTitleValidator(existingTitles, quiz?.title),
+        ],
+      ],
       description: [quiz?.description || '', [Validators.required]],
       category: [quiz?.category || '', [Validators.required]],
       timeToSolve: [
@@ -189,8 +217,7 @@ export class EditQuizComponent implements OnInit {
       next: (data) => {
         this.quiz = data;
         this.formatQuizDates(data);
-
-        this.initializeForm(this.quiz);
+        this.initializeForm(this.titles || [], this.quiz);
         this.isLoading = false;
       },
       error: (error) => {
