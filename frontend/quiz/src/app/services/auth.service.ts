@@ -1,7 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, Observable, of, throwError } from 'rxjs';
 import { SolvedQuiz } from '../../model';
 
 @Injectable({
@@ -49,16 +49,17 @@ export class AuthService {
       username: string;
       email: string;
       solvedQuizzes: SolvedQuiz[];
+      profilePicture: string;
     };
     stats: {
       totalQuizzesSolved: number;
       accuracy: number;
     };
-    achievements:{
-        name:string,
-        description:string,
-        url:string,
-      }[]
+    achievements: {
+      name: string;
+      description: string;
+      url: string;
+    }[];
   }> {
     return this.http
       .get<{
@@ -66,6 +67,7 @@ export class AuthService {
           username: string;
           email: string;
           solvedQuizzes: SolvedQuiz[];
+          profilePicture: string;
         };
         stats: {
           totalQuizzesSolved: number;
@@ -103,5 +105,32 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     return !!this.getToken();
+  }
+
+  uploadImage(formData: FormData): Observable<{ message: string }> {
+    const token = this.getToken();
+    if (!token) return of();
+    const headers = new HttpHeaders({
+      authorization: token,
+    });
+
+    return this.http.post<{ message: string }>(
+      `${this.apiUrl}/uploadImage`,
+      formData,
+      { headers }
+    );
+  }
+
+  getProfilePicture(profilePicture: string) {
+    const token = this.getToken();
+    if (!token) return of();
+    const headers = new HttpHeaders({
+      authorization: token,
+    });
+
+    return this.http.get(`${this.apiUrl}/profilePicture/${profilePicture}`, {
+      headers,
+      responseType: 'blob',
+    });
   }
 }

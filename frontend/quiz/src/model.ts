@@ -27,6 +27,7 @@ export interface User {
   solvedQuizzes?: SolvedQuiz[];
   achievements: string[];
   correctAnswers: number;
+  image: string;
 }
 
 export interface SolvedQuiz {

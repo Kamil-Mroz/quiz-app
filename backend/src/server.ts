@@ -10,6 +10,7 @@ import dotenv from "dotenv";
 import { SolvedQuiz, User } from "./types/user";
 import { Quiz } from "./types/quiz";
 import { Achievement } from "./types/achievement";
+import multer from "multer";
 
 dotenv.config();
 
@@ -27,6 +28,11 @@ const __dirname = path.dirname(__filename);
 const DATA_PATH = path.join(__dirname, "data.json");
 
 app.use("/images", express.static(path.join(__dirname, "assets")));
+app.use(
+  "/profilePicture",
+  authenticate,
+  express.static(path.join(__dirname, "uploads"))
+);
 
 interface Data {
   users: User[];
@@ -55,10 +61,10 @@ function checkAchievements(user: User) {
   const data = loadData();
   const achievements = data.achievements;
   const unlocked: string[] = [];
-  
+
   achievements.forEach((achievement: Achievement) => {
     const { type, value } = achievement.condition;
-    
+
     if (type === "quizAmount") {
       if (
         user.solvedQuizzes!.length >= value &&
@@ -75,7 +81,7 @@ function checkAchievements(user: User) {
       }
     }
   });
-  
+
   return unlocked;
 }
 
@@ -123,11 +129,47 @@ app.post("/register", async (req: Request, res: Response) => {
     solvedQuizzes: [],
     correctAnswers: 0,
     achievements: [],
+    image: "",
   });
   saveData(data);
 
   res.status(201).json({ message: "User registered successfully" });
 });
+
+const storage = multer.diskStorage({
+  destination: function (req, file, callback) {
+    callback(null, __dirname + "/uploads");
+  },
+  filename: function (req, file, callback) {
+    callback(null, file.originalname);
+  },
+});
+
+const uploads = multer({ storage: storage });
+
+app.post(
+  "/uploadImage",
+  authenticate,
+  uploads.single("file"),
+  async (req: Request, res: Response) => {
+    const data = loadData();
+    const user: User = data.users.find(
+      (u: User) => u.username === req.user?.username
+    );
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+    if (!req.file) {
+      res.status(500).json({ message: "File upload error" });
+      return;
+    }
+
+    user.image = req.file.originalname;
+    saveData(data);
+    res.status(201).json({ message: "File uploaded" });
+  }
+);
 
 app.post("/login", async (req: Request, res: Response) => {
   const { username, password } = req.body;
@@ -185,6 +227,7 @@ app.get("/profile", authenticate, (req: Request, res: Response) => {
       username: user.username,
       email: user.email,
       solvedQuizzes: solvedQuizzes,
+      profilePicture: user.image,
     },
     stats: {
       totalQuizzesSolved: totalQuizzesSolved,
@@ -210,7 +253,7 @@ app.get("/quizzes", (req: Request, res: Response) => {
   }
   if (sortBy && typeof sortBy === "string") {
     quizzes = quizzes.sort((quizA, quizB) => {
-      if (sortBy === "asc") {
+      if (sortBy === "desc") {
         return quizB.title
           .toLowerCase()
           .localeCompare(quizA.title.toLowerCase());
@@ -412,6 +455,7 @@ app.post(
     const quizId = parseInt(req.params.quizId);
 
     const quiz = data.quizzes.find((quiz) => quiz.id === quizId);
+
     if (!quiz) {
       res.status(404).json({ message: "Quiz not found" });
       return;
@@ -557,14 +601,12 @@ app.get("/leaderboard", (req: Request, res: Response) => {
     )
     .splice(0, data.users.length < 10 ? data.users.length : 10)
     .sort(
-      (userA, userB) => userA.totalSolvedQuizzes - userB.totalSolvedQuizzes
+      (userA, userB) => userB.totalSolvedQuizzes - userA.totalSolvedQuizzes
     );
-
   if (!topTenUsers) {
     res.status(404).json({ message: " Top users not found" });
     return;
   }
-
   res.json(topTenUsers);
 });
 

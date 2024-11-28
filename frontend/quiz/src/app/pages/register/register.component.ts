@@ -12,7 +12,6 @@ import { Router } from '@angular/router';
   styleUrl: './register.component.css',
 })
 export class RegisterComponent {
-  private apiUrl = 'localhost:3000/login';
   fb = inject(FormBuilder);
   http = inject(HttpClient);
   errorMessage = '';
@@ -31,10 +30,6 @@ export class RegisterComponent {
   });
 
   constructor(private authService: AuthService, private router: Router) {}
-
-  onSubmit(): void {
-    this.http.post(this.apiUrl, { user: this.form.getRawValue() });
-  }
 
   register() {
     if (this.form.invalid) {

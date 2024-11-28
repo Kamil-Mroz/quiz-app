@@ -6,7 +6,8 @@
       "email": "qwe@qwe.qwe",
       "solvedQuizzes": [],
       "correctAnswers": 0,
-      "achievements": []
+      "achievements": [],
+      "image": ""
     },
     {
       "username": "Test",
@@ -14,12 +15,14 @@
       "email": "qwe@qwe.qwe",
       "solvedQuizzes": [],
       "correctAnswers": 0,
-      "achievements": []
+      "achievements": [],
+      "image": ""
     },
     {
       "username": "qwe",
       "password": "$2a$10$Z.uf0ouAODKasXGY75VsCur1ZaRWR8TyfueWNhaEtOvDL3RVKGlMK",
       "email": "qwe@qwe.qwe",
+      "image": "",
       "solvedQuizzes": [
         {
           "quizId": 10,
