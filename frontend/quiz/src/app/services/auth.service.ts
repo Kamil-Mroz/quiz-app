@@ -107,14 +107,16 @@ export class AuthService {
     return !!this.getToken();
   }
 
-  uploadImage(formData: FormData): Observable<{ message: string }> {
+  uploadImage(
+    formData: FormData
+  ): Observable<{ message: string; profilePicture: string }> {
     const token = this.getToken();
     if (!token) return of();
     const headers = new HttpHeaders({
       authorization: token,
     });
 
-    return this.http.post<{ message: string }>(
+    return this.http.post<{ message: string; profilePicture: string }>(
       `${this.apiUrl}/uploadImage`,
       formData,
       { headers }

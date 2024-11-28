@@ -4,13 +4,20 @@
   <div
     class="bg-neutral-800 p-6 rounded-lg shadow-lg border border-neutral-600 gird items-center mb-6"
   >
-    @if(profilePictureUrl){
+    @if(user.profilePicture){ @if(profilePictureUrl){
+
     <img
       [src]="profilePictureUrl"
       alt="Profile Picture"
       class="w-32 h-32 rounded-full object-cover mx-auto"
     />
     }@else{
+    <div
+      class="w-32 h-32 rounded-full mx-auto bg-neutral-900 grid place-content-center"
+    >
+      <p>Loading...</p>
+    </div>
+    } }@else{
     <form
       [formGroup]="profileForm"
       (ngSubmit)="uploadImage()"

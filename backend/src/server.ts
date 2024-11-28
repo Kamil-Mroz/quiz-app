@@ -167,7 +167,7 @@ app.post(
 
     user.image = req.file.originalname;
     saveData(data);
-    res.status(201).json({ message: "File uploaded" });
+    res.status(201).json({ message: "File uploaded", profilePicture:req.file.originalname });
   }
 );
 

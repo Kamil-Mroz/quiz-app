@@ -73,7 +73,9 @@ export class ProfileComponent implements OnInit {
         this.user = data.user;
         this.stats = data.stats;
         this.achievements = data.achievements;
-        this.loadProfilePicture(data.user.profilePicture);
+        if (data.user.profilePicture) {
+          this.loadProfilePicture(data.user.profilePicture);
+        }
       },
       error: (error) => {
         this.errorMessage = error.message;
@@ -91,12 +93,18 @@ export class ProfileComponent implements OnInit {
       this.authService.uploadImage(formData).subscribe({
         next: (data) => {
           alert(data.message);
+
+          const newProfilePicture = data.profilePicture;
+          if(newProfilePicture){
+            this.user!.profilePicture = newProfilePicture;
+            this.loadProfilePicture(newProfilePicture);
+          }
         },
         error: (err) => {
           console.log(err.message);
         },
       });
-      console.log(image);
+
       this.profileForm.reset();
       this.selectedFile = null;
     }
@@ -109,8 +117,9 @@ export class ProfileComponent implements OnInit {
           this.sanitizer.bypassSecurityTrustUrl(objectUrl);
       },
       error: (err) => {
-        console.error('Failed to load profile picture:', err);
-        this.errorMessage = 'Failed to load profile picture';
+        if (this.user?.profilePicture) {
+          this.errorMessage = 'Failed to load profile picture';
+        }
       },
     });
   }
