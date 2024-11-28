@@ -1,80 +1,60 @@
 <div class="container mx-auto p-8 max-w-4xl">
   <h1 class="text-3xl font-extrabold text-center text-white mb-6">Profile</h1>
 
-  <div *ngIf="errorMessage" class="text-red-600 mb-6 text-center">
+  @if(errorMessage){
+
+  <div class="text-red-600 mb-6 text-center">
     {{ errorMessage }}
   </div>
+  } @if(user && stats){
 
-  <ng-container *ngIf="user && stats">
-    <div class="grid gap-6 md:grid-cols-2">
-      <div
-        class="bg-neutral-800 p-6 rounded-lg shadow-lg border border-neutral-600"
-      >
-        <h2 class="text-xl font-semibold text-neutral-100 mb-4">
-          User Information
-        </h2>
-        <div class="space-y-3">
-          <p>
-            <span class="font-medium text-neutral-500">Username:</span>
-            <span class="text-neutral-100">{{ user.username }}</span>
-          </p>
-          <p>
-            <span class="font-medium text-neutral-500">Email:</span>
-            <span class="text-neutral-100">{{ user.email }}</span>
-          </p>
-        </div>
-      </div>
-
-      <div
-        class="bg-neutral-800 p-6 rounded-lg shadow-lg border border-neutral-600"
-      >
-        <h2 class="text-xl font-semibold text-neutral-100 mb-4">Statistics</h2>
-        <div class="space-y-3">
-          <p>
-            <span class="font-medium text-neutral-500"
-              >Total Quizzes Solved:</span
-            >
-            <span class="text-neutral-100">{{ stats.totalQuizzesSolved }}</span>
-          </p>
-          <p>
-            <span class="font-medium text-neutral-500">Accuracy:</span>
-            <span class="text-neutral-100"
-              >{{ stats.accuracy | number : "1.0-2" }}%</span
-            >
-          </p>
-        </div>
+  <div class="grid gap-6 md:grid-cols-2">
+    <div
+      class="bg-neutral-800 p-6 rounded-lg shadow-lg border border-neutral-600"
+    >
+      <h2 class="text-xl font-semibold text-neutral-100 mb-4">
+        User Information
+      </h2>
+      <div class="space-y-3">
+        <p>
+          <span class="font-medium text-neutral-500">Username:</span>
+          <span class="text-neutral-100">{{ user.username }}</span>
+        </p>
+        <p>
+          <span class="font-medium text-neutral-500">Email:</span>
+          <span class="text-neutral-100">{{ user.email }}</span>
+        </p>
       </div>
     </div>
-  </ng-container>
 
-  <div
-    class="bg-neutral-800 p-6 rounded-lg shadow-lg border border-neutral-600 mt-6"
-    *ngIf="achievements && achievements.length > 0"
-  >
-    <h2 class="text-xl font-semibold text-neutral-100 mb-4 text-center">
-      Achievements
-    </h2>
-    <div class="grid grid-cols-3 place-items-center">
-      <div
-        *ngFor="let achievement of achievements"
-        class="flex flex-col items-center"
-      >
-        <img
-          [title]="achievement.name"
-          [src]="this.IMAGE_URL + achievement.url"
-          class="w-32 h-32 rounded-lg shadow-md border border-gray-200 hover:scale-105 transition-transform duration-300 block"
-        />
-        <p class="font-medium text-neutral-500">
-          {{ achievement.name }}
+    <div
+      class="bg-neutral-800 p-6 rounded-lg shadow-lg border border-neutral-600"
+    >
+      <h2 class="text-xl font-semibold text-neutral-100 mb-4">Statistics</h2>
+      <div class="space-y-3">
+        <p>
+          <span class="font-medium text-neutral-500"
+            >Total Quizzes Solved:</span
+          >
+          <span class="text-neutral-100">{{ stats.totalQuizzesSolved }}</span>
         </p>
-        <p class="text-neutral-100">{{ achievement.description }}</p>
+        <p>
+          <span class="font-medium text-neutral-500">Accuracy:</span>
+          <span class="text-neutral-100"
+            >{{ stats.accuracy | number : "1.0-2" }}%</span
+          >
+        </p>
       </div>
     </div>
   </div>
-
-  <ng-container *ngIf="!errorMessage && (!user || !stats)">
-    <div class="text-center text-neutral-500 mt-8">
-      <p class="text-lg">Loading profile...</p>
-    </div>
-  </ng-container>
+  } @if(achievements && achievements.length > 0){
+  <app-achievements
+    [achievements]="achievements"
+    [IMAGE_URL]="this.IMAGE_URL"
+  />
+  } @if(!errorMessage && (!user || !stats)){
+  <div class="text-center text-neutral-500 mt-8">
+    <p class="text-lg">Loading profile...</p>
+  </div>
+  }
 </div>

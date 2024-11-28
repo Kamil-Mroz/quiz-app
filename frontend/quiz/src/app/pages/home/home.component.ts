@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Quiz } from '../../../model';
-import { NgFor, NgIf } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { QuizService } from '../../services/quiz.service';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +8,7 @@ import { QuizListComponent } from '../../components/quiz-list/quiz-list.componen
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [NgIf, HttpClientModule, NgFor, FormsModule, QuizListComponent],
+  imports: [ HttpClientModule, FormsModule, QuizListComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })

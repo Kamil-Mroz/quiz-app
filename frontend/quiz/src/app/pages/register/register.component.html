@@ -12,17 +12,16 @@
         class="input"
         type="text"
       />
-      <div
-        *ngIf="form.controls.username.touched && form.controls.username.invalid"
-        class="error"
-      >
-        <small *ngIf="form.controls.username.errors?.['required']"
-          >Username is required</small
-        >
-        <small *ngIf="form.controls.username.errors?.['minlength']"
-          >Username must be at least 3 characters long</small
-        >
+      @if(form.controls.username.touched && form.controls.username.invalid){
+
+      <div class="error">
+        @if(form.controls.username.errors?.['required']){
+        <small>Username is required</small>
+        } @if(form.controls.username.errors?.['minlength']){
+        <small>Username must be at least 3 characters long</small>
+        }
       </div>
+      }
     </div>
 
     <div>
@@ -30,17 +29,16 @@
         >Email</label
       >
       <input id="email" formControlName="email" class="input" type="email" />
-      <div
-        *ngIf="form.controls.email.touched && form.controls.email.invalid"
-        class="error"
-      >
-        <small *ngIf="form.controls.email.errors?.['required']"
-          >Email is required</small
-        >
-        <small *ngIf="form.controls.email.errors?.['email']"
-          >Please enter a valid email address</small
-        >
+      @if(form.controls.email.touched && form.controls.email.invalid){
+
+      <div class="error">
+        @if(form.controls.email.errors?.['required']){
+        <small>Email is required</small>
+        } @if(form.controls.email.errors?.['email']){
+        <small>Please enter a valid email address</small>
+        }
       </div>
+      }
     </div>
 
     <div>
@@ -53,24 +51,26 @@
         class="input"
         type="password"
       />
-      <div
-        *ngIf="form.controls.password.touched && form.controls.password.invalid"
-        class="error"
-      >
-        <small *ngIf="form.controls.password.errors?.['required']"
-          >Password is required</small
-        >
-        <small *ngIf="form.controls.password.errors?.['minlength']" class="mr-2"
-          >Password must be at least 6 characters long</small
-        >
-        <small *ngIf="form.controls.password.errors?.['pattern']">
+      @if(form.controls.password.touched && form.controls.password.invalid){
+
+      <div class="error">
+        @if(form.controls.password.errors?.['required']){
+        <small>Password is required</small>
+        } @if(form.controls.password.errors?.['minlength']){
+        <small class="mr-2">Password must be at least 6 characters long</small>
+        } @if(form.controls.password.errors?.['pattern']){
+        <small>
           Password must be at least 1 special character
           (!,&#64;,#,$,%,^,&)</small
         >
+        }
       </div>
+      }
     </div>
 
-    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+    @if(errorMessage){
+    <div class="error">{{ errorMessage }}</div>
+    }
 
     <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
       Register

@@ -40,8 +40,8 @@
 
   <div class="text-center text-neutral-500">No quiz available.</div>
   } @if(isLoading && !errorMessage){
-  <p *ngIf="" class="loading">Loading...</p>
+  <p  class="loading">Loading...</p>
   } @if(errorMessage){
-  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+  <div class="error">{{ errorMessage }}</div>
   }
 </div>

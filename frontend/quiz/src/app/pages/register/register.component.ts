@@ -1,20 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
-import {
-  FormBuilder,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
-import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf],
   templateUrl: './register.component.html',
+  imports: [ReactiveFormsModule],
   styleUrl: './register.component.css',
 })
 export class RegisterComponent {

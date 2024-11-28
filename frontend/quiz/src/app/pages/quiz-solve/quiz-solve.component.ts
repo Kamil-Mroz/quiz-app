@@ -2,14 +2,14 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Quiz } from '../../../model';
 import { QuizService } from '../../services/quiz.service';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Location, NgFor, NgIf } from '@angular/common';
+import { Location } from '@angular/common';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-quiz-solve',
   standalone: true,
-  imports: [NgIf, NgFor, DateFormatPipe, FormsModule, RouterLink],
+  imports: [DateFormatPipe, FormsModule, RouterLink],
   templateUrl: './quiz-solve.component.html',
   styleUrl: './quiz-solve.component.css',
 })

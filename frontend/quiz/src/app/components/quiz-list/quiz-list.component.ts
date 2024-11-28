@@ -1,4 +1,3 @@
-import { NgFor, NgIf } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Quiz } from '../../../model';
@@ -6,7 +5,7 @@ import { Quiz } from '../../../model';
 @Component({
   selector: 'app-quiz-list',
   standalone: true,
-  imports: [NgFor, NgIf, RouterLink],
+  imports: [RouterLink],
   templateUrl: './quiz-list.component.html',
   styleUrl: './quiz-list.component.css',
 })

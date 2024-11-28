@@ -5,20 +5,24 @@
   >
     ← Go Back
   </button>
-  <div *ngIf="score !== undefined && accuracy !== undefined" class="mt-6 p-4">
+  @if(score !== undefined && accuracy !== undefined){
+  <div class="mt-6 p-4">
     <h3 class="text-xl font-semibold text-white mb-2">Quiz Result</h3>
     <p class="text-neutral-300">Score: {{ score }}</p>
     <p class="text-neutral-300">Accuracy: {{ accuracy }}%</p>
-    <div *ngIf="achievementUnlocked">
+    @if(achievementUnlocked){
+    <div>
       <p class="text-green-500 text-xl">New achievement unlocked</p>
       <a routerLink="/profile" class="text-blue-400 hover:underline">
         Go to profile</a
       >
     </div>
+    }
     <a routerLink="/" class="text-blue-400 hover:underline"> View Quizzes </a>
   </div>
+  } @if(quiz && score === undefined && accuracy === undefined){
 
-  <div *ngIf="quiz && score === undefined && accuracy === undefined">
+  <div>
     <h2 class="text-2xl font-semibold text-blue-500 mb-4">{{ quiz.title }}</h2>
     <p class="text-neutral-300 mb-6">{{ quiz.description }}</p>
 
@@ -27,20 +31,17 @@
     </div>
 
     <form (ngSubmit)="submitQuiz()" class="space-y-6" method="">
-      <div *ngFor="let question of quiz.questions; let i = index" class="mb-6">
+      @for(question of quiz.questions; track i;let i = $index){
+      <div class="mb-6">
         <h3 class="text-lg font-semibold text-white mb-2">
           Question {{ i + 1 }}
         </h3>
         <p class="text-neutral-400 mb-4">{{ question.text }}</p>
+        @if(question.choices && question.choices.length > 0){
+        <div class="space-y-2">
+          @for(choice of question.choices; track j; let j = $index){
 
-        <div
-          *ngIf="question.choices && question.choices.length > 0"
-          class="space-y-2"
-        >
-          <div
-            *ngFor="let choice of question.choices"
-            class="flex items-center"
-          >
+          <div class="flex items-center">
             <label class="flex items-center space-x-3 text-neutral-300">
               <input
                 type="radio"
@@ -54,8 +55,11 @@
               </span>
             </label>
           </div>
+          }
         </div>
+        }
       </div>
+      }
 
       <button
         type="submit"
@@ -66,12 +70,11 @@
       </button>
     </form>
   </div>
+  }
 </div>
 
-<div
-  *ngIf="isLoading && !errorMessage"
-  class="loading text-center py-6 text-xl text-blue-500"
->
-  Loading...
-</div>
-<div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+@if(isLoading && !errorMessage){
+<div class="loading text-center py-6 text-xl text-blue-500">Loading...</div>
+} @if(errorMessage){
+<div class="error">{{ errorMessage }}</div>
+}

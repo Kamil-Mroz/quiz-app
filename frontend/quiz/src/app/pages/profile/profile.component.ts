@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
-import { DecimalPipe, NgFor, NgIf } from '@angular/common';
+import { DecimalPipe} from '@angular/common';
 import { SolvedQuiz } from '../../../model';
+import { AchievementsComponent } from "../../components/achievements/achievements.component";
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [DecimalPipe, NgIf, NgFor],
+  imports: [DecimalPipe, AchievementsComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
 })

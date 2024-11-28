@@ -11,7 +11,7 @@ import {
 import { Question, Quiz } from '../../../model';
 import { QuizService } from '../../services/quiz.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Location, NgFor, NgIf } from '@angular/common';
+import { Location} from '@angular/common';
 import { correctAnswerInChoicesValidator } from '../../validators/correct-answer-in-choices.validator';
 import { choiceTypeValidator } from '../../validators/choice-type.validator';
 import { uniqueTitleValidator } from '../../validators/unique-title.validator';
@@ -19,7 +19,7 @@ import { uniqueTitleValidator } from '../../validators/unique-title.validator';
 @Component({
   selector: 'app-edit-quiz',
   standalone: true,
-  imports: [NgIf, NgFor, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './edit-quiz.component.html',
   styleUrl: './edit-quiz.component.css',
 })

@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Quiz } from '../../../model';
 import { QuizService } from '../../services/quiz.service';
-import { Router, RouterLink } from '@angular/router';
-import { NgFor, NgIf } from '@angular/common';
-import { QuizListComponent } from "../../components/quiz-list/quiz-list.component";
+import { Router } from '@angular/router';
+import { QuizListComponent } from '../../components/quiz-list/quiz-list.component';
 
 @Component({
   selector: 'app-user-quizzes',
   standalone: true,
-  imports: [ NgIf, QuizListComponent],
+  imports: [QuizListComponent],
   templateUrl: './user-quizzes.component.html',
   styleUrl: './user-quizzes.component.css',
 })

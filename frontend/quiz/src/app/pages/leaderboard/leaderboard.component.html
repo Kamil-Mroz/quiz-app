@@ -2,25 +2,34 @@
   <h1 class="text-3xl font-extrabold text-neutral-100 mb-10 text-center">
     Leaderboard
   </h1>
-  <p *ngIf="isLoading && !errorMessage" class="loading">Loading quiz data...</p>
+  @if(isLoading && !errorMessage){
+  <p class="loading">Loading quiz data...</p>
+  } @if(!isLoading && topUsers.length > 0){
 
-  <div *ngIf="!isLoading && topUsers.length > 0">
+  <div>
     <div class="row">
       <p>Lp</p>
       <p>Username</p>
       <p>Total solved quizzes</p>
     </div>
-    <div *ngFor="let user of topUsers; let i = index" class="row">
+    @for(user of topUsers;track i; let i = $index){
+
+    <div class="row">
       <p>{{ i + 1 }}</p>
       <p>{{ user.username }}</p>
       <p>{{ user.totalSolvedQuizzes }}</p>
     </div>
+    }
   </div>
-  <div *ngIf="!isLoading && topUsers.length === 0">
+  } @if(!isLoading && topUsers.length === 0){
+
+  <div>
     <p class="loading text-center">No user has completed a quiz.</p>
   </div>
+  } @if(errorMessage){
 
-  <div *ngIf="errorMessage">
+  <div>
     <p class="error">{{ errorMessage }}</p>
   </div>
+  }
 </div>

@@ -16,13 +16,11 @@
   >
   </app-quiz-list>
 
-  <div
-    *ngIf="quizzes.length === 0 && !isLoading && !errorMessage"
-    class="text-center text-neutral-400"
-  >
-    No quiz available.
-  </div>
-  <div *ngIf="isLoading" class="text-center text-neutral-400">Loading...</div>
-
-  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+  @if(quizzes.length === 0 && !isLoading && !errorMessage){
+  <div class="text-center text-neutral-400">No quiz available.</div>
+  } @if(isLoading && !errorMessage){
+  <div class="text-center text-neutral-400">Loading...</div>
+  } @if(errorMessage){
+  <div class="error">{{ errorMessage }}</div>
+  }
 </div>

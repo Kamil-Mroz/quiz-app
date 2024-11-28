@@ -1,13 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {QuizService} from "../../services/quiz.service";
 import {Router} from "@angular/router";
-import { NgFor, NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-leaderboard',
   standalone: true,
   imports: [
-    NgIf,NgFor,
   ],
   templateUrl: './leaderboard.component.html',
   styleUrl: './leaderboard.component.css'

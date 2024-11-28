@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { Quiz } from '../../../model';
 import { QuizService } from '../../services/quiz.service';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { DatePipe, Location, NgIf } from '@angular/common';
+import { DatePipe, Location } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-quiz',
   standalone: true,
-  imports: [NgIf, DatePipe, RouterLink],
+  imports: [ DatePipe, RouterLink],
   templateUrl: './quiz.component.html',
   styleUrl: './quiz.component.css',
 })
