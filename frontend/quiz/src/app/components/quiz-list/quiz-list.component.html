@@ -1,7 +1,6 @@
-<div
-  *ngFor="let quiz of quizzes"
-  class="bg-neutral-800 shadow-md rounded-lg p-6 mb-4"
->
+@for(quiz of quizzes; track $index){
+
+<div class="bg-neutral-800 shadow-md rounded-lg p-6 mb-4">
   <h2 class="text-xl font-semibold text-blue-400">{{ quiz.title }}</h2>
   <p class="text-neutral-200 mt-2 line-clamp-2">{{ quiz.description }}</p>
 
@@ -13,19 +12,21 @@
       View Quiz
     </a>
 
-    <ng-container *ngIf="isOwner">
-      <button
-        (click)="onEditQuiz(quiz.id)"
-        class="text-yellow-400 hover:underline cursor-pointer"
-      >
-        Edit Quiz
-      </button>
-      <button
-        (click)="onDeleteQuiz(quiz.id)"
-        class="text-red-400 hover:underline cursor-pointer"
-      >
-        Delete Quiz
-      </button>
-    </ng-container>
+    @if(isOwner){
+    <button
+      (click)="onEditQuiz(quiz.id)"
+      class="text-yellow-400 hover:underline cursor-pointer"
+    >
+      Edit Quiz
+    </button>
+    <button
+      (click)="onDeleteQuiz(quiz.id)"
+      class="text-red-400 hover:underline cursor-pointer"
+    >
+      Delete Quiz
+    </button>
+    }
   </div>
 </div>
+
+}

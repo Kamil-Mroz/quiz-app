@@ -9,18 +9,20 @@
       placeholder="Search quizzes"
       class="search-bar input"
     />
-
+    @if(categories.length){
     <select
-      *ngIf="categories.length"
       [(ngModel)]="selectedCategory"
       (change)="onCategoryChange()"
       class="category-select input"
     >
       <option value="">All categories</option>
-      <option *ngFor="let category of categories" [value]="category">
+      @for(category of categories; track $index){
+      <option [value]="category">
         {{ category }}
       </option>
+      }
     </select>
+    }
 
     <label>
       Sort by title
@@ -34,14 +36,12 @@
 
   <app-quiz-list [quizzes]="quizzes"></app-quiz-list>
 
-  <div
-    *ngIf="quizzes.length === 0 && !isLoading && !errorMessage"
-    class="text-center text-neutral-500"
-  >
-    No quiz available.
-  </div>
+  @if(quizzes.length === 0 && !isLoading && !errorMessage){
 
-  <p *ngIf="isLoading" class="loading">Loading...</p>
-
+  <div class="text-center text-neutral-500">No quiz available.</div>
+  } @if(isLoading && !errorMessage){
+  <p *ngIf="" class="loading">Loading...</p>
+  } @if(errorMessage){
   <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+  }
 </div>

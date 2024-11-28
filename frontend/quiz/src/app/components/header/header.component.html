@@ -13,31 +13,31 @@
         [routerLinkActiveOptions]="{ exact: true }"
         >Home</a
       >
+      @if(this.authService.isLoggedIn()){
 
-      <ng-container *ngIf="this.authService.isLoggedIn(); else guest">
-        <a routerLink="/quizzes/own" class="nav-link" routerLinkActive="active"
-          >My quizzes</a
-        >
-        <a routerLink="/profile" class="nav-link" routerLinkActive="active"
-          >Profile</a
-        >
-        <button (click)="logout()" class="nav-link inline-block">Logout</button>
-      </ng-container>
-      <ng-template #guest>
-        <a routerLink="/login" class="nav-link" routerLinkActive="active"
-          >Login</a
-        >
-        <a routerLink="/register" class="nav-link" routerLinkActive="active"
-          >Register</a
-        >
-      </ng-template>
+      <a routerLink="/quizzes/own" class="nav-link" routerLinkActive="active"
+        >My quizzes</a
+      >
+      <a routerLink="/profile" class="nav-link" routerLinkActive="active"
+        >Profile</a
+      >
+      <button (click)="logout()" class="nav-link inline-block">Logout</button>
+      }@else{
+
+      <a routerLink="/login" class="nav-link" routerLinkActive="active"
+        >Login</a
+      >
+      <a routerLink="/register" class="nav-link" routerLinkActive="active"
+        >Register</a
+      >
+      }
 
       <a
         routerLink="leaderboard"
         class="nav-link"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"
-      >Leaderboard</a
+        >Leaderboard</a
       >
     </nav>
   </div>

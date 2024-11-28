@@ -1,9 +1,7 @@
-<div *ngIf="isLoading" class="loading text-center py-6 text-xl">Loading...</div>
-
-<div
-  *ngIf="!isLoading"
-  class="max-w-4xl mx-auto p-6 bg-neutral-900 shadow-lg rounded-lg"
->
+@if(isLoading){
+<div class="loading text-center py-6 text-xl">Loading...</div>
+} @if(!isLoading){
+<div class="max-w-4xl mx-auto p-6 bg-neutral-900 shadow-lg rounded-lg">
   <button
     (click)="goBack()"
     class="mb-4 text-blue-500 hover:text-blue-700 font-semibold underline"
@@ -26,23 +24,17 @@
         class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         placeholder="Enter the quiz title"
       />
+      @if(quizForm.get('title')?.errors && quizForm.get('title')?.touched){
+      <div>
+        @if(quizForm.get('title')?.errors?.['required']){
 
-      <div
-        *ngIf="quizForm.get('title')?.errors && quizForm.get('title')?.touched"
-      >
-        <small
-          class="error"
-          *ngIf="quizForm.get('title')?.errors?.['required']"
-        >
-          Title is required.
-        </small>
-        <small
-          class="error"
-          *ngIf="quizForm.get('title')?.hasError('uniqueTitle')"
-        >
-          Title must be uniques
-        </small>
+        <small class="error"> Title is required. </small>
+        } @if(quizForm.get('title')?.hasError('uniqueTitle')){
+
+        <small class="error"> Title must be uniques </small>
+        }
       </div>
+      }
     </div>
 
     <!-- Description Input -->
@@ -60,19 +52,14 @@
         placeholder="Describe the quiz"
       ></textarea>
 
-      <div
-        *ngIf="
-          quizForm.get('description')?.errors &&
-          quizForm.get('description')?.touched
-        "
-      >
-        <small
-          class="error"
-          *ngIf="quizForm.get('description')?.errors?.['required']"
-        >
-          Description is required.
-        </small>
+      @if(quizForm.get('description')?.errors &&
+      quizForm.get('description')?.touched &&
+      quizForm.get('description')?.errors?.['required']){
+
+      <div>
+        <small class="error"> Description is required. </small>
       </div>
+      }
     </div>
 
     <!-- Category Input -->
@@ -86,18 +73,14 @@
         class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         placeholder="Enter the category"
       />
-      <div
-        *ngIf="
-          quizForm.get('category')?.errors && quizForm.get('category')?.touched
-        "
-      >
-        <small
-          class="error"
-          *ngIf="quizForm.get('category')?.errors?.['required']"
-        >
-          Category is required.
-        </small>
+
+      @if(quizForm.get('category')?.errors && quizForm.get('category')?.touched
+      && quizForm.get('category')?.errors?.['required']){
+
+      <div>
+        <small class="error"> Category is required. </small>
       </div>
+      }
     </div>
 
     <div>
@@ -114,36 +97,31 @@
         min="1"
         step="0.1"
       />
-      <div
-        *ngIf="
-          quizForm.get('timeToSolve')?.errors &&
-          quizForm.get('timeToSolve')?.touched
-        "
-      >
-        <small
-          class="error"
-          *ngIf="quizForm.get('timeToSolve')?.errors?.['required']"
-        >
-          Time to solve is required.
-        </small>
+      @if( quizForm.get('timeToSolve')?.errors &&
+      quizForm.get('timeToSolve')?.touched ){
+      <div>
+        @if( quizForm.get('timeToSolve')?.errors?.['required']){
 
-        <small
-          class="error"
-          *ngIf="quizForm.get('timeToSolve')?.errors?.['min']"
-        >
-          Time to solve must be at least 1 minute.
-        </small>
+        <small class="error"> Time to solve is required. </small>
+        } @if(quizForm.get('timeToSolve')?.errors?.['min']){
+
+        <small class="error"> Time to solve must be at least 1 minute. </small>
+        }
       </div>
+      }
     </div>
 
-    <div *ngIf="quizForm.hasError('minQuestions')">
+    @if(quizForm.hasError('minQuestions')){
+
+    <div>
       <p class="error">A quiz must have at least one question.</p>
     </div>
+    }
 
     <!-- Questions Section -->
     <div formArrayName="questions" class="space-y-6">
+      @for(question of questions().controls; track i; let i = $index){
       <div
-        *ngFor="let question of questions().controls; let i = index"
         [formGroupName]="i"
         class="p-4 bg-neutral-800 rounded-lg shadow-sm space-y-4"
       >
@@ -193,12 +171,11 @@
         </div>
 
         <!-- Choices Section -->
-        <div *ngIf="questions().at(i).get('type')?.value !== 'boolean'">
+        @if(questions().at(i).get('type')?.value !== 'boolean'){
+        <div>
           <div formArrayName="choices" class="space-y-4">
-            <div
-              *ngFor="let choice of getChoices(i).controls; let j = index"
-              [formGroupName]="j"
-            >
+            @for(choice of getChoices(i).controls; track j; let j = $index){
+            <div [formGroupName]="j">
               <div class="flex items-center space-x-4">
                 <label
                   class="block text-lg font-medium text-neutral-300 min-w-fit"
@@ -209,83 +186,77 @@
                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter choice"
                 />
+                @if(getChoices(i).controls.length > 2){
                 <button
-                  *ngIf="getChoices(i).controls.length > 2"
                   type="button"
                   (click)="removeChoice(i, j)"
                   class="text-red-500 hover:text-red-700"
                 >
                   Remove
                 </button>
+                }
               </div>
+              @if(choice.get('choiceText')?.hasError('invalidNumber')){
 
-              <div
-                *ngIf="choice.get('choiceText')?.hasError('invalidNumber')"
-                class="error"
-              >
+              <div class="error">
                 {{
                   choice.get("choiceText")?.getError("invalidNumber")?.message
                 }}
               </div>
+              } @if(choice.get('choiceText')?.hasError('invalidDate')){
 
-              <div
-                *ngIf="choice.get('choiceText')?.hasError('invalidDate')"
-                class="error"
-              >
+              <div class="error">
                 {{ choice.get("choiceText")?.getError("invalidDate")?.message }}
               </div>
+              } @if(choice.get('choiceText')?.hasError('invalidDateFormat')){
 
-              <div
-                *ngIf="choice.get('choiceText')?.hasError('invalidDateFormat')"
-                class="error"
-              >
+              <div class="error">
                 {{
                   choice.get("choiceText")?.getError("invalidDateFormat")
                     ?.message
                 }}
               </div>
+              } @if(choice.get('choiceText')?.hasError('invalidBoolean')){
 
-              <div
-                *ngIf="choice.get('choiceText')?.hasError('invalidBoolean')"
-                class="error"
-              >
+              <div class="error">
                 {{
                   choice.get("choiceText")?.getError("invalidBoolean")?.message
                 }}
               </div>
+              }
             </div>
+            @if( getChoices(i).controls.length <
+            (questions().at(i).get('type')?.value === 'boolean' ? 2 : 4)){
 
             <button
-              *ngIf="
-                getChoices(i).controls.length <
-                (questions().at(i).get('type')?.value === 'boolean' ? 2 : 4)
-              "
               type="button"
               (click)="addChoice(i)"
               class="mt-2 w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
             >
               Add Choice
             </button>
+            } }
           </div>
         </div>
+        } @if(questions().at(i).hasError('correctAnswerNotInChoices')){
 
-        <div
-          *ngIf="questions().at(i).hasError('correctAnswerNotInChoices')"
-          class="error"
-        >
+        <div class="error">
           {{ questions().at(i).getError("correctAnswerNotInChoices") }}
         </div>
+        }
 
         <!-- Remove Question Button -->
+        @if(questions().controls.length > 1){
         <button
-          *ngIf="questions().controls.length > 1"
           type="button"
           (click)="removeQuestion(i)"
           class="w-full bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
         >
           Remove Question
         </button>
+        }
       </div>
+      }
     </div>
 
     <!-- Add Question Button -->
@@ -307,3 +278,4 @@
     </button>
   </form>
 </div>
+}
