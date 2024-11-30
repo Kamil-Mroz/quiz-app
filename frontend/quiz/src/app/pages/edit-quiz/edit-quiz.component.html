@@ -225,7 +225,8 @@
               </div>
               }
             </div>
-            @if( getChoices(i).controls.length <
+
+            } @if(getChoices(i).controls.length <
             (questions().at(i).get('type')?.value === 'boolean' ? 2 : 4)){
 
             <button
@@ -235,9 +236,10 @@
             >
               Add Choice
             </button>
-            } }
+            }
           </div>
         </div>
+
         } @if(questions().at(i).hasError('correctAnswerNotInChoices')){
 
         <div class="error">
